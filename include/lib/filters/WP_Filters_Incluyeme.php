@@ -300,54 +300,61 @@ class WP_Filters_Incluyeme
 		self::$email = $email;
 	}
 	
-	function searchModifiedIncluyeme()
+	protected static function changePrefix($query, $userID = false)
 	{
 		global $wpdb;
-		$results = $wpdb->get_results('SELECT
-  wp_users.user_email,
-  wp_users.display_name,
-  wp_wpjb_resume.phone,
-  wp_wpjb_resume.description,
-  wp_wpjb_job.job_title,
-  wp_posts.guid,
-  wp_usermeta.meta_key,
-  wp_usermeta.meta_value,
-  wp_wpjb_resume.candidate_state,
-  wp_wpjb_resume.candidate_location,
-  wp_users.ID AS users_id,
-  wp_wpjb_application.id AS application_id,
-  wp_wpjb_resume.id AS resume_id
-FROM wp_wpjb_resume
-  INNER JOIN wp_users
-    ON wp_users.ID = wp_wpjb_resume.user_id
-  LEFT OUTER JOIN wp_wpjb_resume_search
-    ON wp_wpjb_resume.id = wp_wpjb_resume_search.resume_id
-  LEFT OUTER JOIN wp_wpjb_application
-    ON wp_wpjb_resume.user_id = wp_wpjb_application.user_id
-  LEFT OUTER JOIN wp_wpjb_job
-    ON wp_wpjb_application.job_id = wp_wpjb_job.id
-  LEFT OUTER JOIN wp_wpjb_meta_value
-    ON wp_wpjb_resume.id = wp_wpjb_meta_value.object_id
-  LEFT OUTER JOIN wp_wpjb_meta
-    ON wp_wpjb_meta_value.meta_id = wp_wpjb_meta.id
-  LEFT OUTER JOIN wp_wpjb_tagged
-    ON wp_wpjb_resume.id = wp_wpjb_tagged.id
-  LEFT OUTER JOIN wp_posts
-    ON wp_wpjb_resume.post_id = wp_posts.ID
-  LEFT OUTER JOIN wp_usermeta
-    ON wp_users.ID = wp_usermeta.user_id
-  LEFT OUTER JOIN wp_wpjb_company
-    ON wp_wpjb_job.employer_id = wp_wpjb_company.id
-WHERE wp_usermeta.meta_key = \'first_name\'
-AND wp_wpjb_company.user_id = 2
-GROUP BY wp_users.ID,
-         wp_wpjb_application.id,
-         wp_wpjb_resume.id,
-         wp_usermeta.meta_key,
-         wp_usermeta.meta_value,
-         wp_wpjb_resume.candidate_state,
-         wp_wpjb_resume.candidate_location');
-		
-		return $results;
+		$change = [
+			'%prefix%' => $wpdb->prefix,
+			'%userID%' => self::getUserId()
+		];
+		if ($userID && is_array($userID) && count($userID) !== 0) {
+			$change = [
+				'%prefix%' => $wpdb->prefix,
+				'%userID%' => self::getUserId(),
+				'%resume%' => implode(',', $userID)
+			];
+		}
+		return str_replace(array_keys($change), array_values($change), $query);
+	}
+	
+	protected function executeQueries($sql)
+	{
+		global $wpdb;
+		return $wpdb->get_results($sql);
+	}
+	
+	protected function changeObjectReferenceIncluyeme($obj, $property, $rename, $eliminate = false)
+	{
+		if (!is_string($property) || !is_string($rename) || !is_array($obj)) {
+			throw new Exception('Invalid data passing to this function');
+		}
+		$response = [];
+		foreach ($obj as $change) {
+			$change->$rename = $change->$property;
+			unset($change->$property);
+			if ($eliminate) {
+				unset($change->$eliminate);
+			}
+			array_push($response, $change);
+		}
+		return $response;
+	}
+	
+	public static function unionObjectsIncluyeme($obj, $mix, $param, $paramMix)
+	{
+		if (!is_array($obj) || !is_array($mix) || empty($param) || empty($paramMix)) {
+			throw new Exception('Invalid data passing to this function: unionObjectsIncluyeme');
+		}
+		for ($i = 0; $i < count($obj); $i++) {
+			foreach ($mix as $itemsMix) {
+				if ($obj[$i]->$param === $itemsMix->$paramMix) {
+					unset($itemsMix->$paramMix);
+					foreach ($itemsMix as $key => $value) {
+						$obj[$i]->$key = $value;
+					}
+				}
+			}
+		}
+		return $obj;
 	}
 }

@@ -1,7 +1,7 @@
 let filterApplicants = new Vue({
-    el: '#filterApplicants',
+    el: '#incluyeme-wpjb',
     data: {
-        message: 'We are working on this section, we are sorry for the inconvenience. Date:' + new Date().toLocaleString(),
+        message: false,
         searchEnable: false,
         jobs: null,
         city: null,
@@ -53,45 +53,29 @@ let filterApplicants = new Vue({
             console.log({userId, url})
             this.searchEnable = true;
             url = url + '/incluyeme/include/verifications.php';
-            this.message = 'We are working on this section, we are sorry for the inconvenience. Date:' + new Date().toLocaleString() + ' You Search For: ' + JSON.stringify({
-                jobs: this.jobs,
-                city: this.city,
-                keyPhrase: this.keyPhrase,
-                course: this.course,
-                name: this.name,
-                lastName: this.lastName,
-                oral: this.oral,
-                idioms: this.idioms,
-                education: this.education,
-                description: this.description,
-                residence: this.residence,
-                letter: this.letter,
-                email: this.email,
-                leido: this.leido,
-                desestimado: this.desestimado,
-                preseleccionado: this.preseleccionado,
-                seleccionado: this.seleccionado,
-                motriz: this.motriz,
-                auditive: this.auditive,
-                visual: this.visual,
-                visceral: this.visceral,
-                intelectual: this.intelectual,
-                psiquica: this.psiquica,
-                habla: this.habla,
-                ninguna: this.ninguna,
-            })
-            this.message = jQuery.ajax({
+            jQuery("#filterApplicants").modal('hide');//ocultamos el modal
+            jQuery('body').removeClass('modal-open');//eliminamos la clase del body para poder hacer scroll
+            jQuery('.modal-backdrop').remove();//eliminamos el backdrop del modal
+            this.message = 'Buscando...';
+            let request = await jQuery.ajax({
                 url: url,
                 data: {id: userId},
                 type: 'POST',
-                dataType: 'json',
-                success: function (json) {
-                   return  json
-                },
-                error: function (xhr, status) {
-                    alert('Disculpe, hay un problema');
-                },
+                dataType: 'json'
+            }).done(success => {
+                return success
+            }).fail((error) => {
+                return 'Disculpe, hay un problema';
             });
+            if (typeof request === 'string') {
+                this.message = request
+            } else {
+                if (request.message.length) {
+                    this.message = request.message;
+                } else {
+                    this.message = 'No hay resultados';
+                }
+            }
         },
         onClassChange(classAttrValue) {
             const classList = classAttrValue.split(' ');

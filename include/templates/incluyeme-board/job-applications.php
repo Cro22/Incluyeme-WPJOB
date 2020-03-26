@@ -21,7 +21,7 @@
 
 ?>
 	
-	<div class="wpjb wpjb-page-job-applications">
+	<div class="wpjb wpjb-page-job-applications" id="incluyeme-wpjb">
 		
 		<?php wpjb_flash(); ?>
 		<?php wpjb_breadcrumbs($breadcrumbs) ?>
@@ -57,6 +57,7 @@
 							</div>
 							<div class="wpjb-list-search">
 								<a href="#" class="wpjb-button wpjb-button-search wpjb-button-submit"
+								   v-on:click='message=false'
 								   title="<?php _e("Filter Results", "wpjobboard") ?>">
 									<span class="wpjb-glyphs wpjb-icon-search"></span>
 									<span class="wpjb-mobile-only"><?php _e("Filter Results", "wpjobboard") ?></span>
@@ -77,9 +78,9 @@
 				</div>
 			</div>
 		</div>
-		<div class="wpjb-grid wpjb-grid-compact">
+		<div v-if="message===false" class="wpjb-grid wpjb-grid-compact">
 			
-			<?php if (!empty($apps->application)): print_r(wp_get_current_user()) ?>
+			<?php if (!empty($apps->application)): ?>
 				
 				<?php foreach ($apps->application as $application): ?>
 					<?php $job = $application->getJob(true); ?>
@@ -232,286 +233,291 @@
 				</div>
 			<?php endif; ?>
 		</div>
-		
-		
+		<div class="wpjb-grid wpjb-grid-compact" v-else-if="typeof message === 'string'">
+			<div class="wpjb-grid-row">
+				<div class="wpjb-col-100 wpjb-grid-col-center">
+					{{message}}
+				</div>
+			</div>
+		</div>
 		<?php if (!empty($apps->application)): ?>
 			<div class="wpjb-paginate-links">
 				<?php wpjb_paginate_links($url, $apps->pages, $apps->page) ?>
 			</div>
 		<?php endif; ?>
-	
-	</div>
-	<div class="container">
-		<!-- Modal -->
-		<div id="filterApplicants" class="modal" tabindex="-1" role="dialog" aria-labelledby="filterApplicants"
-		     aria-hidden="true"
-		     style="margin-top: 2rem;" ref="filterApplicants">
-			<div class="modal-dialog modal-lg" role="document" style="max-width: 60% !important;">
-				<div class="modal-content">
-					<div class="modal-body">
-						<div class="container">
-							<div class="row">
-								<div class="col">
-									<h5 class="modal-title"><?php _e("Filtros", "wpjobboard"); ?></h5>
-								</div>
-								<div class="col">
-									<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-										<span aria-hidden="true">&times;</span>
-									</button>
-								</div>
-							</div>
-							<form v-if="!searchEnable">
-								<div class="row">
-									<div class="col-6">
-										<div class="container">
-											<div class="form-group">
-												<label for="job"><?php _e("Avisos.", "wpjobboard"); ?>
-												</label>
-												<select class="form-control w-100" id="job" v-model="jobs">
-													<option disabled
-													        selected><?php _e("Seleccioanr Aviso.", "wpjobboard"); ?></option>
-													<?php foreach ($jobsList as $job): ?>
-														<option value="<?php echo esc_html($job->id) ?>" <?php selected($job->id, $job_id) ?>><?php echo esc_html($job->job_title) ?></option>
-													<?php endforeach; ?>
-												</select>
-											</div>
-											<div class="form-group">
-												<label class="w-100">
-													<input type="text"
-													       class="form-control"
-													       v-model="keyPhrase"
-													       placeholder="<?php _e("Palabra clave o frase.", "wpjobboard"); ?>">
-												</label>
-											</div>
-											<div class="form-group">
-												<label><?php _e("Lugar de Residencia", "wpjobboard"); ?></label>
-												<label class="w-100">
-													<input type="text"
-													       class="form-control"
-													       v-model="residence"
-													       placeholder="<?php _e("Provincia/Estado.", "wpjobboard"); ?>">
-												</label>
-												<label class="w-100">
-													<input type="text"
-													       class="form-control"
-													       v-model="city"
-													       placeholder="<?php _e("Ciudad.", "wpjobboard"); ?>">
-												</label>
-											</div>
-											<div class="form-group">
-												<label><?php _e("Datos Personales", "wpjobboard"); ?></label>
-												<label class="w-100">
-													<input type="text"
-													       class="form-control"
-													       v-model="name"
-													       placeholder="<?php _e("Nombres.", "wpjobboard"); ?>">
-												</label>
-												<label class="w-100">
-													<input type="text"
-													       class="form-control"
-													       v-model="lastName"
-													       placeholder="<?php _e("Apellidos.", "wpjobboard"); ?>">
-												</label>
-												<label class="w-100">
-													<input type="email"
-													       class="form-control"
-													       v-model="email"
-													       placeholder="<?php _e("E-mail.", "wpjobboard"); ?>">
-												</label>
-											</div>
-										</div>
-									</div>
-									<div class="col-6">
-										<div class="form-group">
-											<label><?php _e("Tipo de Discapacidad", "wpjobboard"); ?></label>
-											<div class="container">
-												<div class="row">
-													<div class="col m-3">
-														<div class="form-group">
-															<input
-																	class="form-check-input"
-																	type="checkbox" value="Motriz"
-																	id="defaultCheck1" v-model="motriz">
-															<label for="defaultCheck1"><?php _e("Motriz", "wpjobboard"); ?></label>
-														</div>
-														<div class="form-group">
-															<input
-																	class="form-check-input" type="checkbox"
-																	v-model="auditive"
-																	value="Auditiva"
-																	id="defaultCheck2">
-															<label for="defaultCheck2"><?php _e("Auditiva", "wpjobboard"); ?></label>
-														</div>
-														<div class="form-group">
-															<input class="form-check-input"
-															       type="checkbox" value="Visual"
-															       v-model="visual"
-															       id="defaultCheck3">
-															<label for="defaultCheck3"><?php _e("Visual", "wpjobboard"); ?></label>
-														</div>
-														<div class="form-group">
-															<input
-																	class="form-check-input" type="checkbox"
-																	value="Visceral"
-																	v-model="visceral"
-																	id="defaultCheck4">
-															<label for="defaultCheck4"><?php _e("Visceral", "wpjobboard"); ?></label>
-														</div>
-													</div>
-													<div class="col m-3">
-														<div class="form-group">
-															<input class="form-check-input"
-															       type="checkbox" value="Intelectual"
-															       v-model="intelectual"
-															       id="defaultCheck5">
-															<label for="defaultCheck5"><?php _e("Intelectual", "wpjobboard"); ?>
-															</label>
-														</div>
-														<div class="form-group">
-															<input class="form-check-input"
-															       type="checkbox" value="Psiquica"
-															       v-model="psiquica"
-															       id="defaultCheck6">
-															<label for="defaultCheck6"><?php _e("Psiquica", "wpjobboard"); ?></label>
-														</div>
-														<div class="form-group">
-															<input class="form-check-input"
-															       type="checkbox" value="habla"
-															       id="defaultCheck7">
-															<label for="defaultCheck7"><?php _e("Habla", "wpjobboard"); ?></label>
-														</div>
-														<div class="form-group">
-															<input class="form-check-input"
-															       type="checkbox" value="Ninguna"
-															       v-model="ninguna"
-															       id="defaultCheck8">
-															<label for="defaultCheck8"><?php _e("Ninguna", "wpjobboard"); ?></label>
-														</div>
-													</div>
-												</div>
-											</div>
-										</div>
-										<div class="form-group">
-											<label><?php _e("Educación", "wpjobboard"); ?></label>
-											<label class="w-100">
-												<input type="text"
-												       class="form-control"
-												       v-model="education"
-												       placeholder="<?php _e("Instituto/Colegio/Universidad.", "wpjobboard"); ?>">
-											</label>
-											<label class="w-100">
-												<input type="text"
-												       class="form-control"
-												       v-model="course"
-												       placeholder="<?php _e("Carrera/Curso.", "wpjobboard"); ?>">
-											</label>
-											<label class="w-100">
-												<input type="text"
-												       class="form-control"
-												       v-model="description"
-												       placeholder="<?php _e("Descripción", "wpjobboard"); ?>">
-											</label>
-										</div>
-										<div class="form-group">
-											<label for="idioms"><?php _e("Idiomas.", "wpjobboard"); ?>
-											</label>
-											<select class="form-control w-100" id="idioms" v-model="idioms">
-												<option disabled
-												        selected><?php _e("Elegir Idioma.", "wpjobboard"); ?></option>
-												<option value="idioma_ingles">Inglés</option>
-												<option value="idioma_protugues">Portugues</option>
-												<option value="idioma_frances">Frances</option>
-												<option value="idioma_aleman">Alemán</option>
-											</select>
-											<div class="mt-1">
-												<div class="row">
-													<div class="col">
-														<label for="oral"><?php _e("Nivel Oral.", "wpjobboard"); ?>
-														</label>
-														<select class="form-control w-100" id="oral" v-model="oral">
-															<option disabled
-															        selected><?php _e("Elegir Nivel.", "wpjobboard"); ?></option>
-															<option>Básico</option>
-															<option>Intermedio</option>
-															<option>Avanzado</option>
-															<option>Bilingüe</option>
-														</select>
-													</div>
-													<div class="col">
-														<label for="escrito"><?php _e("Nivel Escrito.", "wpjobboard"); ?>
-														</label>
-														<select class="form-control w-100" id="escrito"
-														        v-model="letter">
-															<option disabled
-															        selected><?php _e("Elegir Nivel.", "wpjobboard"); ?></option>
-															<option>Básico</option>
-															<option>Intermedio</option>
-															<option>Avanzado</option>
-															<option>Bilingüe</option>
-														</select>
-													</div>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-								<hr class="w-100">
+		<div class="container">
+			<!-- Modal -->
+			<div id="filterApplicants" class="modal" tabindex="-1" role="dialog" aria-labelledby="filterApplicants"
+			     aria-hidden="true"
+			     style="margin-top: 2rem;" ref="filterApplicants">
+				<div class="modal-dialog modal-lg" role="document" style="max-width: 60% !important;">
+					<div class="modal-content">
+						<div class="modal-body">
+							<div class="container">
 								<div class="row">
 									<div class="col">
-										<div class="form-check form-check-inline">
-											<label class="form-check-label"
-											       for="inlineCheckbox1"><?php _e("Etiquetas:", "wpjobboard"); ?></label>
-										</div>
-										<div class="form-check form-check-inline">
-											<input class="form-check-input" type="checkbox" id="inlineCheckbox1"
-											       value="Leído" v-model="leido">
-											<label class="form-check-label"
-											       for="inlineCheckbox1"
-											       style="color: black"><?php _e("#Leído", "wpjobboard"); ?></label>
-										</div>
-										<div class="form-check form-check-inline">
-											<input class="form-check-input" type="checkbox" id="inlineCheckbox2"
-											       value="Seleccionado"
-											       v-model="seleccionado">
-											<label class="form-check-label"
-											       for="inlineCheckbox2"
-											       style="color: green"><?php _e("#Seleccionado", "wpjobboard"); ?></label>
-										</div>
-										<div class="form-check form-check-inline">
-											<input class="form-check-input" type="checkbox" id="inlineCheckbox2"
-											       value="Preseleccionado" v-model="preseleccionado">
-											<label class="form-check-label"
-											       for="inlineCheckbox2"
-											       style="color: orange"> <?php _e("#Preseleccionado", "wpjobboard"); ?></label>
-										</div>
-										<div class="form-check form-check-inline">
-											<input class="form-check-input" type="checkbox" id="inlineCheckbox2"
-											       value="Desestimado" v-model="desestimado">
-											<label class="form-check-label"
-											       for="inlineCheckbox2"
-											       style="color: red"><?php _e("#Desestimado", "wpjobboard"); ?></label>
-										</div>
+										<h5 class="modal-title"><?php _e("Filtros", "wpjobboard"); ?></h5>
+									</div>
+									<div class="col">
+										<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+											<span aria-hidden="true">&times;</span>
+										</button>
 									</div>
 								</div>
-							</form>
-							<div v-else class="container" style="word-wrap: break-word;">
-								<p>{{message}}</p>
+								<form v-if="!searchEnable">
+									<div class="row">
+										<div class="col-6">
+											<div class="container">
+												<div class="form-group">
+													<label for="job"><?php _e("Avisos.", "wpjobboard"); ?>
+													</label>
+													<select class="form-control w-100" id="job" v-model="jobs">
+														<option disabled
+														        selected><?php _e("Seleccioanr Aviso.", "wpjobboard"); ?></option>
+														<?php foreach ($jobsList as $job): ?>
+															<option value="<?php echo esc_html($job->id) ?>" <?php selected($job->id, $job_id) ?>><?php echo esc_html($job->job_title) ?></option>
+														<?php endforeach; ?>
+													</select>
+												</div>
+												<div class="form-group">
+													<label class="w-100">
+														<input type="text"
+														       class="form-control"
+														       v-model="keyPhrase"
+														       placeholder="<?php _e("Palabra clave o frase.", "wpjobboard"); ?>">
+													</label>
+												</div>
+												<div class="form-group">
+													<label><?php _e("Lugar de Residencia", "wpjobboard"); ?></label>
+													<label class="w-100">
+														<input type="text"
+														       class="form-control"
+														       v-model="residence"
+														       placeholder="<?php _e("Provincia/Estado.", "wpjobboard"); ?>">
+													</label>
+													<label class="w-100">
+														<input type="text"
+														       class="form-control"
+														       v-model="city"
+														       placeholder="<?php _e("Ciudad.", "wpjobboard"); ?>">
+													</label>
+												</div>
+												<div class="form-group">
+													<label><?php _e("Datos Personales", "wpjobboard"); ?></label>
+													<label class="w-100">
+														<input type="text"
+														       class="form-control"
+														       v-model="name"
+														       placeholder="<?php _e("Nombres.", "wpjobboard"); ?>">
+													</label>
+													<label class="w-100">
+														<input type="text"
+														       class="form-control"
+														       v-model="lastName"
+														       placeholder="<?php _e("Apellidos.", "wpjobboard"); ?>">
+													</label>
+													<label class="w-100">
+														<input type="email"
+														       class="form-control"
+														       v-model="email"
+														       placeholder="<?php _e("E-mail.", "wpjobboard"); ?>">
+													</label>
+												</div>
+											</div>
+										</div>
+										<div class="col-6">
+											<div class="form-group">
+												<label><?php _e("Tipo de Discapacidad", "wpjobboard"); ?></label>
+												<div class="container">
+													<div class="row">
+														<div class="col m-3">
+															<div class="form-group">
+																<input
+																		class="form-check-input"
+																		type="checkbox" value="Motriz"
+																		id="defaultCheck1" v-model="motriz">
+																<label for="defaultCheck1"><?php _e("Motriz", "wpjobboard"); ?></label>
+															</div>
+															<div class="form-group">
+																<input
+																		class="form-check-input" type="checkbox"
+																		v-model="auditive"
+																		value="Auditiva"
+																		id="defaultCheck2">
+																<label for="defaultCheck2"><?php _e("Auditiva", "wpjobboard"); ?></label>
+															</div>
+															<div class="form-group">
+																<input class="form-check-input"
+																       type="checkbox" value="Visual"
+																       v-model="visual"
+																       id="defaultCheck3">
+																<label for="defaultCheck3"><?php _e("Visual", "wpjobboard"); ?></label>
+															</div>
+															<div class="form-group">
+																<input
+																		class="form-check-input" type="checkbox"
+																		value="Visceral"
+																		v-model="visceral"
+																		id="defaultCheck4">
+																<label for="defaultCheck4"><?php _e("Visceral", "wpjobboard"); ?></label>
+															</div>
+														</div>
+														<div class="col m-3">
+															<div class="form-group">
+																<input class="form-check-input"
+																       type="checkbox" value="Intelectual"
+																       v-model="intelectual"
+																       id="defaultCheck5">
+																<label for="defaultCheck5"><?php _e("Intelectual", "wpjobboard"); ?>
+																</label>
+															</div>
+															<div class="form-group">
+																<input class="form-check-input"
+																       type="checkbox" value="Psiquica"
+																       v-model="psiquica"
+																       id="defaultCheck6">
+																<label for="defaultCheck6"><?php _e("Psiquica", "wpjobboard"); ?></label>
+															</div>
+															<div class="form-group">
+																<input class="form-check-input"
+																       type="checkbox" value="habla"
+																       id="defaultCheck7">
+																<label for="defaultCheck7"><?php _e("Habla", "wpjobboard"); ?></label>
+															</div>
+															<div class="form-group">
+																<input class="form-check-input"
+																       type="checkbox" value="Ninguna"
+																       v-model="ninguna"
+																       id="defaultCheck8">
+																<label for="defaultCheck8"><?php _e("Ninguna", "wpjobboard"); ?></label>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+											<div class="form-group">
+												<label><?php _e("Educación", "wpjobboard"); ?></label>
+												<label class="w-100">
+													<input type="text"
+													       class="form-control"
+													       v-model="education"
+													       placeholder="<?php _e("Instituto/Colegio/Universidad.", "wpjobboard"); ?>">
+												</label>
+												<label class="w-100">
+													<input type="text"
+													       class="form-control"
+													       v-model="course"
+													       placeholder="<?php _e("Carrera/Curso.", "wpjobboard"); ?>">
+												</label>
+												<label class="w-100">
+													<input type="text"
+													       class="form-control"
+													       v-model="description"
+													       placeholder="<?php _e("Descripción", "wpjobboard"); ?>">
+												</label>
+											</div>
+											<div class="form-group">
+												<label for="idioms"><?php _e("Idiomas.", "wpjobboard"); ?>
+												</label>
+												<select class="form-control w-100" id="idioms" v-model="idioms">
+													<option disabled
+													        selected><?php _e("Elegir Idioma.", "wpjobboard"); ?></option>
+													<option value="idioma_ingles">Inglés</option>
+													<option value="idioma_protugues">Portugues</option>
+													<option value="idioma_frances">Frances</option>
+													<option value="idioma_aleman">Alemán</option>
+												</select>
+												<div class="mt-1">
+													<div class="row">
+														<div class="col">
+															<label for="oral"><?php _e("Nivel Oral.", "wpjobboard"); ?>
+															</label>
+															<select class="form-control w-100" id="oral" v-model="oral">
+																<option disabled
+																        selected><?php _e("Elegir Nivel.", "wpjobboard"); ?></option>
+																<option>Básico</option>
+																<option>Intermedio</option>
+																<option>Avanzado</option>
+																<option>Bilingüe</option>
+															</select>
+														</div>
+														<div class="col">
+															<label for="escrito"><?php _e("Nivel Escrito.", "wpjobboard"); ?>
+															</label>
+															<select class="form-control w-100" id="escrito"
+															        v-model="letter">
+																<option disabled
+																        selected><?php _e("Elegir Nivel.", "wpjobboard"); ?></option>
+																<option>Básico</option>
+																<option>Intermedio</option>
+																<option>Avanzado</option>
+																<option>Bilingüe</option>
+															</select>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<hr class="w-100">
+									<div class="row">
+										<div class="col">
+											<div class="form-check form-check-inline">
+												<label class="form-check-label"
+												       for="inlineCheckbox1"><?php _e("Etiquetas:", "wpjobboard"); ?></label>
+											</div>
+											<div class="form-check form-check-inline">
+												<input class="form-check-input" type="checkbox" id="inlineCheckbox1"
+												       value="Leído" v-model="leido">
+												<label class="form-check-label"
+												       for="inlineCheckbox1"
+												       style="color: black"><?php _e("#Leído", "wpjobboard"); ?></label>
+											</div>
+											<div class="form-check form-check-inline">
+												<input class="form-check-input" type="checkbox" id="inlineCheckbox2"
+												       value="Seleccionado"
+												       v-model="seleccionado">
+												<label class="form-check-label"
+												       for="inlineCheckbox2"
+												       style="color: green"><?php _e("#Seleccionado", "wpjobboard"); ?></label>
+											</div>
+											<div class="form-check form-check-inline">
+												<input class="form-check-input" type="checkbox" id="inlineCheckbox2"
+												       value="Preseleccionado" v-model="preseleccionado">
+												<label class="form-check-label"
+												       for="inlineCheckbox2"
+												       style="color: orange"> <?php _e("#Preseleccionado", "wpjobboard"); ?></label>
+											</div>
+											<div class="form-check form-check-inline">
+												<input class="form-check-input" type="checkbox" id="inlineCheckbox2"
+												       value="Desestimado" v-model="desestimado">
+												<label class="form-check-label"
+												       for="inlineCheckbox2"
+												       style="color: red"><?php _e("#Desestimado", "wpjobboard"); ?></label>
+											</div>
+										</div>
+									</div>
+								</form>
+								<div v-else class="container" style="word-wrap: break-word;">
+									<p>{{message}}</p>
+								</div>
 							</div>
 						</div>
-					</div>
-					<div class="modal-footer" v-if="!searchEnable">
-						<div class="container text-center">
-							<button
-									v-on:click="filterData(<?php echo esc_html(get_current_user_id() . ',"' . plugins_url() . '"'); ?>)"
-									type="button"
-									class="btn btn-lg
+						<div class="modal-footer" v-if="!searchEnable">
+							<div class="container text-center">
+								<button
+										v-on:click="filterData(<?php echo esc_html(get_current_user_id() . ',"' . plugins_url() . '"'); ?>)"
+										type="button"
+										class="btn btn-lg
 						                                                                           btn-secondary"><?php _e("Buscar", "wpjobboard"); ?></button>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
+	
 	<script type="text/javascript">
         jQuery(function ($) {
             $(document).ready(function () {

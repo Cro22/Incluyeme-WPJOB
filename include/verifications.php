@@ -4,8 +4,13 @@ header('Content-type: application/json');
 $result = [];
 if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST['id']) {
 	$data = new WP_Incluyeme();
-	$result = $data->searchModifiedIncluyeme();
-	echo json_response(200, $result);
+	$data::setUserId($_POST['id']);
+	try {
+		$result = $data->searchModifiedIncluyeme(true);
+		echo json_response(200, $result);
+	} catch (Exception $e) {
+		echo json_response(500, 'Ha ocurrido un error');
+	}
 	return;
 }
 

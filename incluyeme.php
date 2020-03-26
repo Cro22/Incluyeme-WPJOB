@@ -36,7 +36,7 @@ function incluyeme_requirements()
 			unset($_GET['activate']);
 		}
 	} else {
-		add_action('plugins_loaded', 'incluyeme_load');
+		incluyeme_load();
 	}
 }
 
