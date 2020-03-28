@@ -55,7 +55,7 @@ class WP_Filters_Incluyeme
 	/**
 	 * @param mixed $user_id
 	 */
-	public static function setUserId($user_id): void
+	public static function setUserId($user_id)
 	{
 		self::$user_id = $user_id;
 	}
@@ -71,7 +71,7 @@ class WP_Filters_Incluyeme
 	/**
 	 * @param mixed $job
 	 */
-	public static function setJob($job): void
+	public static function setJob($job)
 	{
 		self::$job = $job;
 	}
@@ -87,7 +87,7 @@ class WP_Filters_Incluyeme
 	/**
 	 * @param mixed $disability
 	 */
-	public static function setDisability($disability): void
+	public static function setDisability($disability)
 	{
 		self::$disability = $disability;
 	}
@@ -103,7 +103,7 @@ class WP_Filters_Incluyeme
 	/**
 	 * @param mixed $status
 	 */
-	public static function setStatus($status): void
+	public static function setStatus($status)
 	{
 		self::$status = $status;
 	}
@@ -119,7 +119,7 @@ class WP_Filters_Incluyeme
 	/**
 	 * @param mixed $searchPhrase
 	 */
-	public static function setSearchPhrase($searchPhrase): void
+	public static function setSearchPhrase($searchPhrase)
 	{
 		self::$searchPhrase = $searchPhrase;
 	}
@@ -135,7 +135,7 @@ class WP_Filters_Incluyeme
 	/**
 	 * @param mixed $city
 	 */
-	public static function setCity($city): void
+	public static function setCity($city)
 	{
 		self::$city = $city;
 	}
@@ -151,7 +151,7 @@ class WP_Filters_Incluyeme
 	/**
 	 * @param mixed $course
 	 */
-	public static function setCourse($course): void
+	public static function setCourse($course)
 	{
 		self::$course = $course;
 	}
@@ -167,7 +167,7 @@ class WP_Filters_Incluyeme
 	/**
 	 * @param mixed $name
 	 */
-	public static function setName($name): void
+	public static function setName($name)
 	{
 		self::$name = $name;
 	}
@@ -183,7 +183,7 @@ class WP_Filters_Incluyeme
 	/**
 	 * @param mixed $lastName
 	 */
-	public static function setLastName($lastName): void
+	public static function setLastName($lastName)
 	{
 		self::$lastName = $lastName;
 	}
@@ -199,7 +199,7 @@ class WP_Filters_Incluyeme
 	/**
 	 * @param mixed $oral
 	 */
-	public static function setOral($oral): void
+	public static function setOral($oral)
 	{
 		self::$oral = $oral;
 	}
@@ -215,7 +215,7 @@ class WP_Filters_Incluyeme
 	/**
 	 * @param mixed $idioms
 	 */
-	public static function setIdioms($idioms): void
+	public static function setIdioms($idioms)
 	{
 		self::$idioms = $idioms;
 	}
@@ -231,7 +231,7 @@ class WP_Filters_Incluyeme
 	/**
 	 * @param mixed $education
 	 */
-	public static function setEducation($education): void
+	public static function setEducation($education)
 	{
 		self::$education = $education;
 	}
@@ -247,7 +247,7 @@ class WP_Filters_Incluyeme
 	/**
 	 * @param mixed $description
 	 */
-	public static function setDescription($description): void
+	public static function setDescription($description)
 	{
 		self::$description = $description;
 	}
@@ -263,7 +263,7 @@ class WP_Filters_Incluyeme
 	/**
 	 * @param mixed $residence
 	 */
-	public static function setResidence($residence): void
+	public static function setResidence($residence)
 	{
 		self::$residence = $residence;
 	}
@@ -279,7 +279,7 @@ class WP_Filters_Incluyeme
 	/**
 	 * @param mixed $letter
 	 */
-	public static function setLetter($letter): void
+	public static function setLetter($letter)
 	{
 		self::$letter = $letter;
 	}
@@ -295,24 +295,21 @@ class WP_Filters_Incluyeme
 	/**
 	 * @param mixed $email
 	 */
-	public static function setEmail($email): void
+	public static function setEmail($email)
 	{
 		self::$email = $email;
 	}
 	
-	protected static function changePrefix($query, $userID = false)
+	protected static function changePrefix($query, $changeData = false, $value = false)
 	{
 		global $wpdb;
+		
 		$change = [
 			'%prefix%' => $wpdb->prefix,
 			'%userID%' => self::getUserId()
 		];
-		if ($userID && is_array($userID) && count($userID) !== 0) {
-			$change = [
-				'%prefix%' => $wpdb->prefix,
-				'%userID%' => self::getUserId(),
-				'%resume%' => implode(',', $userID)
-			];
+		if ($changeData && is_string($changeData)) {
+			$change[$changeData] = $value;
 		}
 		return str_replace(array_keys($change), array_values($change), $query);
 	}
@@ -340,11 +337,52 @@ class WP_Filters_Incluyeme
 		return $response;
 	}
 	
+	public static function addQueries($sql)
+	{
+		if (self::getJob() !== null) {
+			$sql .= 'AND %prefix%wpjb_job.id = ' . self::getJob() . ' ';
+		}
+		if (self::getName() !== null) {
+			$sql .= 'AND %prefix%usermeta.meta_value Like "%' . self::getName() . '%" ';
+		}
+		if (self::getStatus() !== null) {
+			$sql .= 'AND %prefix%wpjb_application.status in ( %statuses% ) ';
+			$sql = self::changePrefix($sql, '%statuses%', implode(',', self::getStatus()));
+		}
+		if (self::getResidence() !== null) {
+			$sql .= 'AND %prefix%wpjb_resume.candidate_state Like "%' . self::getResidence() . '%" ';
+		}
+		if (self::getCity() !== null) {
+			$sql .= 'AND %prefix%wpjb_resume.candidate_location Like "%' . self::getCity() . '%" ';
+		}
+		if (self::getName() !== null) {
+			$sql .= 'AND %prefix%usermeta.meta_value Like "%' . self::getName() . '%" ';
+		}
+		if (self::getEmail() !== null) {
+			$sql .= 'AND %prefix%users.user_email = "' . self::getEmail() . '" ';
+		}
+		return $sql;
+	}
+	
+	public static function addQueriesSecondSQL($sql)
+	{
+		if (self::getLastName() !== null) {
+			$sql .= 'AND %prefix%usermeta.meta_value Like "%' . self::getLastName() . '%" ';
+		}
+		if (self::getDisability() !== null) {
+			$sql .= 'AND %prefix%wpjb_meta_value.value in ( %disability% ) ';
+			$sql = self::changePrefix($sql, '%disability%', '"' . implode(',', self::getDisability()) . '"');
+		}
+		
+		return $sql;
+	}
+	
 	public static function unionObjectsIncluyeme($obj, $mix, $param, $paramMix)
 	{
 		if (!is_array($obj) || !is_array($mix) || empty($param) || empty($paramMix)) {
 			throw new Exception('Invalid data passing to this function: unionObjectsIncluyeme');
 		}
+		$positions = [];
 		for ($i = 0; $i < count($obj); $i++) {
 			foreach ($mix as $itemsMix) {
 				if ($obj[$i]->$param === $itemsMix->$paramMix) {
@@ -352,7 +390,14 @@ class WP_Filters_Incluyeme
 					foreach ($itemsMix as $key => $value) {
 						$obj[$i]->$key = $value;
 					}
+				} else {
+					array_push($positions, $i);
 				}
+			}
+		}
+		if(count($obj)!== count($positions)) {
+			foreach ($positions as $eliminated) {
+				unset($obj[$eliminated]);
 			}
 		}
 		return $obj;

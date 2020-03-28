@@ -19,6 +19,7 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
   %prefix%wpjb_job.job_title,
   %prefix%posts.guid,
   %prefix%usermeta.meta_key,
+%prefix%wpjb_application.status as applicant_status,
   %prefix%usermeta.meta_value,
   %prefix%wpjb_resume.candidate_state,
   %prefix%wpjb_resume.candidate_location,
@@ -47,14 +48,17 @@ FROM %prefix%wpjb_resume
   LEFT OUTER JOIN %prefix%wpjb_company
     ON %prefix%wpjb_job.employer_id = %prefix%wpjb_company.id
 WHERE %prefix%usermeta.meta_key = 'first_name'
-AND %prefix%wpjb_company.user_id = %userID%
-GROUP BY %prefix%users.ID,
+AND %prefix%wpjb_company.user_id = %userID% ";
+		
+		$group = 'GROUP BY %prefix%users.ID,
          %prefix%wpjb_application.id,
          %prefix%wpjb_resume.id,
          %prefix%usermeta.meta_key,
          %prefix%usermeta.meta_value,
          %prefix%wpjb_resume.candidate_state,
-         %prefix%wpjb_resume.candidate_location";
+         %prefix%wpjb_resume.candidate_location';
+		$query = $this->addQueries($query);
+		$query .= $group;
 		$results = $this->executeQueries($this->changePrefix($query));
 		try {
 			$response = $this->changeObjectReferenceIncluyeme($results, 'meta_value', 'first_name', 'meta_key');
@@ -64,11 +68,13 @@ GROUP BY %prefix%users.ID,
 					array_push($extraData, $item->users_id);
 				}
 				$extraData = $this->getExtraData($extraData);
+				if (!$extraData) {
+					return $response = [];
+				}
 				return self::unionObjectsIncluyeme($response, $extraData, 'users_id', 'ID');
 			}
-			return $response;
+			return $response = [];
 		} catch (Exception $e) {
-			error_log(print_r($e, true));
 			throw new Exception('Invalid data passing to this function: searchModifiedIncluyeme' . $e);
 		}
 	}
@@ -105,8 +111,9 @@ FROM  %prefix%wpjb_resume
 WHERE %prefix%wpjb_meta.name = \'tipo_discapacidad\'
 AND %prefix%usermeta.meta_key = \'last_name\'
   AND %prefix%wpjb_company.user_id = %userID%
-  AND %prefix%users.ID in (%resume%)
-GROUP BY %prefix%users.user_email,
+  AND %prefix%users.ID in (%resume%)';
+		
+		$group = 'GROUP BY %prefix%users.user_email,
          %prefix%users.display_name,
          %prefix%wpjb_resume.phone,
          %prefix%wpjb_resume.description,
@@ -119,8 +126,13 @@ GROUP BY %prefix%users.user_email,
          %prefix%usermeta.meta_value,
          %prefix%wpjb_resume.candidate_state,
          %prefix%wpjb_resume.candidate_location';
-		$result = $this->executeQueries($this->changePrefix($query, $userId));
+		$query = $this->addQueriesSecondSQL($query);
+		$query .= $group;
+		$result = $this->executeQueries($this->changePrefix($query, '%resume%', implode(',', $userId)));
 		try {
+			if (count($result) === 0) {
+				return false;
+			}
 			$result = $this->changeObjectReferenceIncluyeme($result, 'meta_value', 'last_name', 'meta_key');
 			$result = $this->changeObjectReferenceIncluyeme($result, 'name', 'type_discap', 'meta_key');
 			$result = $this->changeObjectReferenceIncluyeme($result, 'value', 'discap', 'meta_key');

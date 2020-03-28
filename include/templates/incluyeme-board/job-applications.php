@@ -20,82 +20,97 @@
 /* @var $job string Wpjb_Model_Job */
 
 ?>
+<?php
+$js = plugins_url() . '/incluyeme/include/assets/js/';
+$css = plugins_url() . '/incluyeme/include/assets/css/';
+wp_register_script('bootstrapJs', $js . 'bootstrap.min.js', ['jquery'], '1.0.0');
+wp_register_script('vueJS', $js . 'vueDEV.js', ['bootstrapJs'], '1.0.0');
+wp_register_script('vueApp', $js . 'vueApp.js', ['vueJS'], '1.0.0');
+wp_register_style('bootstrap-css', $css. 'bootstrap.min.css', array(), '1.0.0' , false);
+wp_enqueue_script('bootstrapJs');
+wp_enqueue_script('vueJS');
+wp_enqueue_script('vueApp');
+wp_enqueue_style('bootstrap-css');
+?>
+<script>
+    var xFoo = document.createElement('x-incluyeme');
+    document.body.appendChild(xFoo);
+</script>
+<div class="wpjb wpjb-page-job-applications" id="incluyeme-wpjb">
 	
-	<div class="wpjb wpjb-page-job-applications" id="incluyeme-wpjb">
-		
-		<?php wpjb_flash(); ?>
-		<?php wpjb_breadcrumbs($breadcrumbs) ?>
-		<div class="container">
-			<div class="row">
-				<div class="col-10">
-					<div id="wpjb-top-search" class="wpjb-layer-inside wpjb-filter-applications">
-						<form action="<?php echo esc_attr(wpjb_link_to("job_applications")) ?>" method="GET">
-							<?php global $wp_rewrite ?>
-							<?php if (!$wp_rewrite->using_permalinks()): ?>
-								<input type="hidden" name="page_id" value="<?php echo $page_id ?>"/>
-								<input type="hidden" name="job_board" value="find"/>
-							<?php endif; ?>
-							<div class="wpjb-search wpjb-search-group-visible">
-								<div class="wpjb-input wpjb-input-type-half wpjb-input-type-half-left">
-									<select name="job_id">
-										<option value=""><?php _e("All Jobs", "wpjobboard") ?></option>
-										<?php foreach ($jobsList as $job): ?>
-											<option value="<?php echo esc_html($job->id) ?>" <?php selected($job->id, $job_id) ?>><?php echo esc_html($job->job_title) ?></option>
-										<?php endforeach; ?>
-									</select>
-								</div>
-								
-								<div class="wpjb-input wpjb-input-type-half wpjb-input-type-half-left">
-									<select name="job_status">
-										<option value=""><?php _e("All Statuses", "wpjobboard") ?></option>
-										<?php foreach ($public_ids as $status_id): ?>
-											<?php $status = wpjb_get_application_status($status_id) ?>
-											<option value="<?php echo esc_html($status_id) ?>" <?php selected($job_status, $status_id) ?>><?php echo esc_html($status["label"]) ?></option>
-										<?php endforeach; ?>
-									</select>
-								</div>
+	<?php wpjb_flash(); ?>
+	<?php wpjb_breadcrumbs($breadcrumbs) ?>
+	<div class="container">
+		<div class="row">
+			<div class="col-10">
+				<div id="wpjb-top-search" class="wpjb-layer-inside wpjb-filter-applications">
+					<form action="<?php echo esc_attr(wpjb_link_to("job_applications")) ?>" method="GET">
+						<?php global $wp_rewrite ?>
+						<?php if (!$wp_rewrite->using_permalinks()): ?>
+							<input type="hidden" name="page_id" value="<?php echo $page_id ?>"/>
+							<input type="hidden" name="job_board" value="find"/>
+						<?php endif; ?>
+						<div class="wpjb-search wpjb-search-group-visible">
+							<div class="wpjb-input wpjb-input-type-half wpjb-input-type-half-left">
+								<select name="job_id">
+									<option value=""><?php _e("All Jobs", "wpjobboard") ?></option>
+									<?php foreach ($jobsList as $job): ?>
+										<option value="<?php echo esc_html($job->id) ?>" <?php selected($job->id, $job_id) ?>><?php echo esc_html($job->job_title) ?></option>
+									<?php endforeach; ?>
+								</select>
 							</div>
-							<div class="wpjb-list-search">
-								<a href="#" class="wpjb-button wpjb-button-search wpjb-button-submit"
-								   v-on:click='message=false'
-								   title="<?php _e("Filter Results", "wpjobboard") ?>">
-									<span class="wpjb-glyphs wpjb-icon-search"></span>
-									<span class="wpjb-mobile-only"><?php _e("Filter Results", "wpjobboard") ?></span>
-								</a>
-								<input type="submit" value="" style="display: none"/>
+							
+							<div class="wpjb-input wpjb-input-type-half wpjb-input-type-half-left">
+								<select name="job_status">
+									<option value=""><?php _e("All Statuses", "wpjobboard") ?></option>
+									<?php foreach ($public_ids as $status_id): ?>
+										<?php $status = wpjb_get_application_status($status_id) ?>
+										<option value="<?php echo esc_html($status_id) ?>" <?php selected($job_status, $status_id) ?>><?php echo esc_html($status["label"]) ?></option>
+									<?php endforeach; ?>
+								</select>
 							</div>
-						
-						</form>
-					</div>
+						</div>
+						<div class="wpjb-list-search">
+							<a href="#" class="wpjb-button wpjb-button-search wpjb-button-submit"
+							   v-on:click='message=false'
+							   title="<?php _e("Filter Results", "wpjobboard") ?>">
+								<span class="wpjb-glyphs wpjb-icon-search"></span>
+								<span class="wpjb-mobile-only"><?php _e("Filter Results", "wpjobboard") ?></span>
+							</a>
+							<input type="submit" value="" style="display: none"/>
+						</div>
+					
+					</form>
 				</div>
-				<div class="col-2">
-					<div id="wpjb-top-fil" class="wpjb-layer-inside wpjb-filter-applications"
-					     style="background: none; border: none; margin: .52rem">
-						<button type="button" id="buttomFilter" class="btn btn-secondary">
-							<span><?php _e("Filtrar", "wpjobboard") ?></span>
-						</button>
-					</div>
+			</div>
+			<div class="col-2">
+				<div id="wpjb-top-fil" class="wpjb-layer-inside wpjb-filter-applications"
+				     style="background: none; border: none; margin: .52rem">
+					<button type="button" id="buttomFilter" class="btn btn-secondary">
+						<span><?php _e("Filtrar", "wpjobboard") ?></span>
+					</button>
 				</div>
 			</div>
 		</div>
-		<div v-if="message===false" class="wpjb-grid wpjb-grid-compact">
+	</div>
+	<div v-if="message===false" class="wpjb-grid wpjb-grid-compact">
+		
+		<?php if (!empty($apps->application)): ?>
 			
-			<?php if (!empty($apps->application)): ?>
+			<?php foreach ($apps->application as $application): ?>
+				<?php $job = $application->getJob(true); ?>
+				<?php $current_status = wpjb_get_application_status($application->status) ?>
 				
-				<?php foreach ($apps->application as $application): ?>
-					<?php $job = $application->getJob(true); ?>
-					<?php $current_status = wpjb_get_application_status($application->status) ?>
+				<div
+						class="wpjb-grid-row wpjb-manage-item wpjb-manage-application wpjb-application-status-<?php echo esc_attr($current_status["key"]) ?>"
+						data-id="<?php echo esc_html($application->id) ?>">
 					
-					<div
-							class="wpjb-grid-row wpjb-manage-item wpjb-manage-application wpjb-application-status-<?php echo esc_attr($current_status["key"]) ?>"
-							data-id="<?php echo esc_html($application->id) ?>">
-						
-						<div class="wpjb-grid-col wpjb-col-1 wpjb-manage-header-img" style="width:60px">
-							<?php echo get_avatar($application->email, 52) ?>
-						</div>
-						
-						<div class="wpjb-grid-col wpjb-col-90" style="width:calc( 100% - 60px )">
-							<div class="wpjb-manage-header">
+					<div class="wpjb-grid-col wpjb-col-1 wpjb-manage-header-img" style="width:60px">
+						<?php echo get_avatar($application->email, 52) ?>
+					</div>
+					
+					<div class="wpjb-grid-col wpjb-col-90" style="width:calc( 100% - 60px )">
+						<div class="wpjb-manage-header">
                     
                     <span class="wpjb-manage-header-left wpjb-line-major wpjb-manage-title">
                         <a href="<?php echo esc_attr(add_query_arg($query_args, wpjb_link_to("job_application", $application))) ?>">
@@ -109,34 +124,34 @@
                         </a>
 
                     </span>
+							
+							<ul class="wpjb-manage-header-right">
 								
-								<ul class="wpjb-manage-header-right">
-									
-									<?php do_action("wpjb_sh_manage_applications_header_right_before", $application->id) ?>
-									
-									<li>
-										<span class="wpjb-glyphs wpjb-icon-briefcase"></span>
-										<span class="wpjb-manage-header-right-item-text">
+								<?php do_action("wpjb_sh_manage_applications_header_right_before", $application->id) ?>
+								
+								<li>
+									<span class="wpjb-glyphs wpjb-icon-briefcase"></span>
+									<span class="wpjb-manage-header-right-item-text">
                                 <a href="<?php echo wpjb_link_to("job", $job) ?>"
                                    class="wpjb-no-text-decoration"><?php echo esc_html($job->job_title) ?></a>
                             </span>
-									</li>
-									
-									<li>
-										<span class="wpjb-glyphs wpjb-icon-clock"></span>
-										<span class="wpjb-manage-header-right-item-text">
+								</li>
+								
+								<li>
+									<span class="wpjb-glyphs wpjb-icon-clock"></span>
+									<span class="wpjb-manage-header-right-item-text">
                             <?php echo esc_html(sprintf(__("%s ago.", "wpjobboard"), wpjb_time_ago($application->applied_at))) ?>
                             </span>
-									</li>
-									
-									<?php do_action("wpjb_sh_manage_applications_header_right_after", $application->id) ?>
-								</ul>
-							
-							
-							</div>
-							
-							
-							<div class="wpjb-manage-actions-wrap">
+								</li>
+								
+								<?php do_action("wpjb_sh_manage_applications_header_right_after", $application->id) ?>
+							</ul>
+						
+						
+						</div>
+						
+						
+						<div class="wpjb-manage-actions-wrap">
 
                     <span class="wpjb-manage-actions-left">
   
@@ -167,7 +182,7 @@
                         
                         <?php do_action("wpjb_sh_manage_applications_actions_left", $job->id, $job->post_id, $application) ?>
                     </span>
-								<span class="wpjb-manage-actions-right">
+							<span class="wpjb-manage-actions-right">
                         
                         <?php $rated = absint($application->meta->rating->value()) ?>
                         <span class="wpjb-manage-action wpjb-star-ratings"
@@ -187,356 +202,412 @@
                         <a href="#" class="wpjb-manage-action wpjb-manage-action-more"><span
 			                        class="wpjb-glyphs wpjb-icon-menu"></span><?php _e("More", "wpjobboard") ?></a>
                     </span>
-								
-								<div class="wpjb-manage-actions-more">
-									<?php do_action("wpjb_sh_manage_applications_actions_more", $job->id, $job->post_id, $application) ?>
-								</div>
+							
+							<div class="wpjb-manage-actions-more">
+								<?php do_action("wpjb_sh_manage_applications_actions_more", $job->id, $job->post_id, $application) ?>
 							</div>
-						
 						</div>
-						
-						<div style="clear: both; overflow: hidden"></div>
-						
-						<div class="wpjb-application-change-status wpjb-filter-applications" style="display: none">
-							<select name="job_id" class="wpjb-application-change-status-dropdown">
-								<?php foreach ($public_ids as $status_id): ?>
-									<?php $status = wpjb_get_application_status($status_id) ?>
-									<option
-											value="<?php echo esc_html($status_id) ?>"
-										<?php selected($application->status, $status_id) ?>
-											data-can-notify="<?php if (isset($status["notify_applicant_email"]) && !empty($status["notify_applicant_email"])): ?>1<?php endif; ?>"
-									><?php echo esc_html($status["label"]) ?>
-									</option>
-								<?php endforeach; ?>
-							</select>
-							
-							<input type="checkbox" value="1" class="wpjb-application-change-status-checkbox"
-							       id="wpjb-application-status-<?php echo $application->id ?>">
-							<label class="wpjb-application-change-status-label"
-							       for="wpjb-application-status-<?php echo $application->id ?>"><?php _e("Notify applicant via email", "wpjobboard") ?></label>
-							
-							<span class="wpjb-glyphs wpjb-icon-spinner wpjb-animate-spin wpjb-none wpjb-application-change-status-loader"></span>
-							
-							<a href="#" class="wpjb-button wpjb-application-change-status-submit"
-							   style="float:right"><?php _e("Change", "wpjobboard") ?></a>
-						</div>
-						
-						<?php do_action("wpjb_sh_manage_applications_after", $job->id, $job->post_id, $application) ?>
+					
 					</div>
-				
-				<?php endforeach; ?>
-			<?php else: ?>
-				<div class="wpjb-grid-row">
-					<div class="wpjb-col-100 wpjb-grid-col-center">
-						<?php _e("No applicants found.", "wpjobboard"); ?>
+					
+					<div style="clear: both; overflow: hidden"></div>
+					
+					<div class="wpjb-application-change-status wpjb-filter-applications" style="display: none">
+						<select name="job_id" class="wpjb-application-change-status-dropdown">
+							<?php foreach ($public_ids as $status_id): ?>
+								<?php $status = wpjb_get_application_status($status_id) ?>
+								<option
+										value="<?php echo esc_html($status_id) ?>"
+									<?php selected($application->status, $status_id) ?>
+										data-can-notify="<?php if (isset($status["notify_applicant_email"]) && !empty($status["notify_applicant_email"])): ?>1<?php endif; ?>"
+								><?php echo esc_html($status["label"]) ?>
+								</option>
+							<?php endforeach; ?>
+						</select>
+						
+						<input type="checkbox" value="1" class="wpjb-application-change-status-checkbox"
+						       id="wpjb-application-status-<?php echo $application->id ?>">
+						<label class="wpjb-application-change-status-label"
+						       for="wpjb-application-status-<?php echo $application->id ?>"><?php _e("Notify applicant via email", "wpjobboard") ?></label>
+						
+						<span class="wpjb-glyphs wpjb-icon-spinner wpjb-animate-spin wpjb-none wpjb-application-change-status-loader"></span>
+						
+						<a href="#" class="wpjb-button wpjb-application-change-status-submit"
+						   style="float:right"><?php _e("Change", "wpjobboard") ?></a>
 					</div>
+					
+					<?php do_action("wpjb_sh_manage_applications_after", $job->id, $job->post_id, $application) ?>
 				</div>
-			<?php endif; ?>
-		</div>
-		<div class="wpjb-grid wpjb-grid-compact" v-else-if="typeof message === 'string'">
+			
+			<?php endforeach; ?>
+		<?php else: ?>
 			<div class="wpjb-grid-row">
 				<div class="wpjb-col-100 wpjb-grid-col-center">
-					{{message}}
+					<?php _e("No applicants found.", "wpjobboard"); ?>
 				</div>
 			</div>
-		</div>
-		<?php if (!empty($apps->application)): ?>
-			<div class="wpjb-paginate-links">
-				<?php wpjb_paginate_links($url, $apps->pages, $apps->page) ?>
-			</div>
 		<?php endif; ?>
-		<div class="container">
-			<!-- Modal -->
-			<div id="filterApplicants" class="modal" tabindex="-1" role="dialog" aria-labelledby="filterApplicants"
-			     aria-hidden="true"
-			     style="margin-top: 2rem;" ref="filterApplicants">
-				<div class="modal-dialog modal-lg" role="document" style="max-width: 60% !important;">
-					<div class="modal-content">
-						<div class="modal-body">
-							<div class="container">
+	</div>
+	<div class="wpjb-grid wpjb-grid-compact" v-else-if="typeof message === 'string'">
+		<div class="wpjb-grid-row">
+			<div class="wpjb-col-100 wpjb-grid-col-center">
+				{{message}}
+			</div>
+		</div>
+	</div>
+	<div class="container" v-else>
+		<x-incluyeme class="card mt-2" v-for="(data, index) of message" v-bind:key="data.application_id">
+			<x-incluyeme class="card-body">
+				<x-incluyeme class="row">
+					<x-incluyeme class="col-4">
+						IMG
+					</x-incluyeme>
+					<x-incluyeme class="col-8 text-left">
+						<x-incluyeme class="row">
+							<x-incluyeme class="col-12">
+										<span class="wpjb-manage-header-left wpjb-line-major wpjb-manage-title">
+											<a v-bind:href="data.guid">
+												{{data.last_name ? data.last_name+',' : ''}} {{data.first_name}}
+											</a>
+										</span>
+							</x-incluyeme>
+							<x-incluyeme class="col-12">
+								<p>
+									{{data.candidate_location+','}} {{data.candidate_state}}
+								</p>
+							</x-incluyeme>
+							<x-incluyeme class="col-12">
+								<p>
+									Discapacidad: {{data.discap}}
+								</p>
+							</x-incluyeme>
+							<x-incluyeme class="col-12 mt-1">
+								<x-incluyeme class="row">
+									<x-incluyeme class="col m-2">
+										<x-incluyeme class="card">
+											<x-incluyeme class="card-body card-body text-center pt-1 pr-3 pl-3 pb-1">
+												<span>
+											<a>
+												C.V
+											</a>
+													</span>
+											</x-incluyeme>
+										</x-incluyeme>
+									</x-incluyeme>
+									<x-incluyeme class="col m-2">
+										<x-incluyeme class="card">
+											<x-incluyeme class="card-body card-body text-center pt-1 pr-3 pl-3 pb-1">
+												<span>
+											<a>
+												C.U.D
+											</a>
+													</span>
+											</x-incluyeme>
+										</x-incluyeme>
+									</x-incluyeme>
+									<x-incluyeme class="col m-2">
+										<x-incluyeme class="card" :style="{border: data.color}">
+											<x-incluyeme class="card-body card-body text-center pt-1 pr-3 pl-3 pb-1">
+												<span>
+											{{data.read}}
+												</span>
+											</x-incluyeme>
+										</x-incluyeme>
+									</x-incluyeme>
+								</x-incluyeme>
+							</x-incluyeme>
+						</x-incluyeme>
+					</x-incluyeme>
+				</x-incluyeme>
+			</x-incluyeme>
+	</div>
+	<?php if (!empty($apps->application)): ?>
+		<div class="wpjb-paginate-links">
+			<?php wpjb_paginate_links($url, $apps->pages, $apps->page) ?>
+		</div>
+	<?php endif; ?>
+	<div class="container">
+		<!-- Modal -->
+		<div id="filterApplicants" class="modal" tabindex="-1" role="dialog" aria-labelledby="filterApplicants"
+		     aria-hidden="true"
+		     style="margin-top: 2rem;" ref="filterApplicants">
+			<div class="modal-dialog modal-lg" role="document" style="max-width: 60% !important;">
+				<div class="modal-content">
+					<div class="modal-body">
+						<div class="container">
+							<div class="row">
+								<div class="col">
+									<h5 class="modal-title"><?php _e("Filtros", "wpjobboard"); ?></h5>
+								</div>
+								<div class="col">
+									<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>
+								</div>
+							</div>
+							<form v-if="!searchEnable">
+								<div class="row">
+									<div class="col-6">
+										<div class="container">
+											<div class="form-group">
+												<label for="job"><?php _e("Avisos.", "wpjobboard"); ?>
+												</label>
+												<select class="form-control w-100" id="job" v-model="jobs">
+													<option disabled
+													        selected><?php _e("Seleccioanr Aviso.", "wpjobboard"); ?></option>
+													<?php foreach ($jobsList as $job): ?>
+														<option value="<?php echo esc_html($job->id) ?>" <?php selected($job->id, $job_id) ?>><?php echo esc_html($job->job_title) ?></option>
+													<?php endforeach; ?>
+												</select>
+											</div>
+											<div class="form-group">
+												<label class="w-100">
+													<input type="text"
+													       class="form-control"
+													       v-model="keyPhrase"
+													       placeholder="<?php _e("Palabra clave o frase.", "wpjobboard"); ?>">
+												</label>
+											</div>
+											<div class="form-group">
+												<label><?php _e("Lugar de Residencia", "wpjobboard"); ?></label>
+												<label class="w-100">
+													<input type="text"
+													       class="form-control"
+													       v-model="residence"
+													       placeholder="<?php _e("Provincia/Estado.", "wpjobboard"); ?>">
+												</label>
+												<label class="w-100">
+													<input type="text"
+													       class="form-control"
+													       v-model="city"
+													       placeholder="<?php _e("Ciudad.", "wpjobboard"); ?>">
+												</label>
+											</div>
+											<div class="form-group">
+												<label><?php _e("Datos Personales", "wpjobboard"); ?></label>
+												<label class="w-100">
+													<input type="text"
+													       class="form-control"
+													       v-model="name"
+													       placeholder="<?php _e("Nombres.", "wpjobboard"); ?>">
+												</label>
+												<label class="w-100">
+													<input type="text"
+													       class="form-control"
+													       v-model="lastName"
+													       placeholder="<?php _e("Apellidos.", "wpjobboard"); ?>">
+												</label>
+												<label class="w-100">
+													<input type="email"
+													       class="form-control"
+													       v-model="email"
+													       placeholder="<?php _e("E-mail.", "wpjobboard"); ?>">
+												</label>
+											</div>
+										</div>
+									</div>
+									<div class="col-6">
+										<div class="form-group">
+											<label><?php _e("Tipo de Discapacidad", "wpjobboard"); ?></label>
+											<div class="container">
+												<div class="row">
+													<div class="col m-3">
+														<div class="form-group">
+															<input
+																	class="form-check-input"
+																	type="checkbox" value="Motriz"
+																	id="defaultCheck1" v-model="motriz">
+															<label
+																	for="defaultCheck1"><?php _e("Motriz", "wpjobboard"); ?></label>
+														</div>
+														<div class="form-group">
+															<input
+																	class="form-check-input" type="checkbox"
+																	v-model="auditive"
+																	value="Auditiva"
+																	id="defaultCheck2">
+															<label
+																	for="defaultCheck2"><?php _e("Auditiva", "wpjobboard"); ?></label>
+														</div>
+														<div class="form-group">
+															<input class="form-check-input"
+															       type="checkbox" value="Visual"
+															       v-model="visual"
+															       id="defaultCheck3">
+															<label
+																	for="defaultCheck3"><?php _e("Visual", "wpjobboard"); ?></label>
+														</div>
+														<div class="form-group">
+															<input
+																	class="form-check-input" type="checkbox"
+																	value="Visceral"
+																	v-model="visceral"
+																	id="defaultCheck4">
+															<label for="defaultCheck4"><?php _e("Visceral", "wpjobboard"); ?></label>
+														</div>
+													</div>
+													<div class="col m-3">
+														<div class="form-group">
+															<input class="form-check-input"
+															       type="checkbox" value="Intelectual"
+															       v-model="intelectual"
+															       id="defaultCheck5">
+															<label for="defaultCheck5"><?php _e("Intelectual", "wpjobboard"); ?>
+															</label>
+														</div>
+														<div class="form-group">
+															<input class="form-check-input"
+															       type="checkbox" value="Psiquica"
+															       v-model="psiquica"
+															       id="defaultCheck6">
+															<label for="defaultCheck6"><?php _e("Psiquica", "wpjobboard"); ?></label>
+														</div>
+														<div class="form-group">
+															<input class="form-check-input"
+															       type="checkbox" value="habla"
+															       id="defaultCheck7">
+															<label for="defaultCheck7"><?php _e("Habla", "wpjobboard"); ?></label>
+														</div>
+														<div class="form-group">
+															<input class="form-check-input"
+															       type="checkbox" value="Ninguna"
+															       v-model="ninguna"
+															       id="defaultCheck8">
+															<label for="defaultCheck8"><?php _e("Ninguna", "wpjobboard"); ?></label>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+										<div class="form-group">
+											<label><?php _e("Educación", "wpjobboard"); ?></label>
+											<label class="w-100">
+												<input type="text"
+												       class="form-control"
+												       v-model="education"
+												       placeholder="<?php _e("Instituto/Colegio/Universidad.", "wpjobboard"); ?>">
+											</label>
+											<label class="w-100">
+												<input type="text"
+												       class="form-control"
+												       v-model="course"
+												       placeholder="<?php _e("Carrera/Curso.", "wpjobboard"); ?>">
+											</label>
+											<label class="w-100">
+												<input type="text"
+												       class="form-control"
+												       v-model="description"
+												       placeholder="<?php _e("Descripción", "wpjobboard"); ?>">
+											</label>
+										</div>
+										<div class="form-group">
+											<label for="idioms"><?php _e("Idiomas.", "wpjobboard"); ?>
+											</label>
+											<select class="form-control w-100" id="idioms" v-model="idioms">
+												<option disabled
+												        selected><?php _e("Elegir Idioma.", "wpjobboard"); ?></option>
+												<option value="idioma_ingles">Inglés</option>
+												<option value="idioma_protugues">Portugues</option>
+												<option value="idioma_frances">Frances</option>
+												<option value="idioma_aleman">Alemán</option>
+											</select>
+											<div class="mt-1">
+												<div class="row">
+													<div class="col">
+														<label for="oral"><?php _e("Nivel Oral.", "wpjobboard"); ?>
+														</label>
+														<select class="form-control w-100" id="oral" v-model="oral">
+															<option disabled
+															        selected><?php _e("Elegir Nivel.", "wpjobboard"); ?></option>
+															<option>Básico</option>
+															<option>Intermedio</option>
+															<option>Avanzado</option>
+															<option>Bilingüe</option>
+														</select>
+													</div>
+													<div class="col">
+														<label for="escrito"><?php _e("Nivel Escrito.", "wpjobboard"); ?>
+														</label>
+														<select class="form-control w-100" id="escrito"
+														        v-model="letter">
+															<option disabled
+															        selected><?php _e("Elegir Nivel.", "wpjobboard"); ?></option>
+															<option>Básico</option>
+															<option>Intermedio</option>
+															<option>Avanzado</option>
+															<option>Bilingüe</option>
+														</select>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<hr class="w-100">
 								<div class="row">
 									<div class="col">
-										<h5 class="modal-title"><?php _e("Filtros", "wpjobboard"); ?></h5>
-									</div>
-									<div class="col">
-										<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-											<span aria-hidden="true">&times;</span>
-										</button>
+										<div class="form-check form-check-inline">
+											<label class="form-check-label"
+											       for="inlineCheckbox1"><?php _e("Etiquetas:", "wpjobboard"); ?></label>
+										</div>
+										<div class="form-check form-check-inline">
+											<input class="form-check-input" type="checkbox" id="inlineCheckbox1"
+											       value="Leído" v-model="leido">
+											<label class="form-check-label"
+											       for="inlineCheckbox1"
+											       style="color: black"><?php _e("#Leído", "wpjobboard"); ?></label>
+										</div>
+										<div class="form-check form-check-inline">
+											<input class="form-check-input" type="checkbox" id="inlineCheckbox2"
+											       value="Seleccionado"
+											       v-model="seleccionado">
+											<label class="form-check-label"
+											       for="inlineCheckbox2"
+											       style="color: green"><?php _e("#Seleccionado", "wpjobboard"); ?></label>
+										</div>
+										<div class="form-check form-check-inline">
+											<input class="form-check-input" type="checkbox" id="inlineCheckbox3"
+											       value="Preseleccionado" v-model="preseleccionado">
+											<label class="form-check-label"
+											       for="inlineCheckbox3"
+											       style="color: orange"> <?php _e("#Preseleccionado", "wpjobboard"); ?></label>
+										</div>
+										<div class="form-check form-check-inline">
+											<input class="form-check-input" type="checkbox" id="inlineCheckbox4"
+											       value="Desestimado" v-model="desestimado">
+											<label class="form-check-label"
+											       for="inlineCheckbox4"
+											       style="color: red"><?php _e("#Desestimado", "wpjobboard"); ?></label>
+										</div>
 									</div>
 								</div>
-								<form v-if="!searchEnable">
-									<div class="row">
-										<div class="col-6">
-											<div class="container">
-												<div class="form-group">
-													<label for="job"><?php _e("Avisos.", "wpjobboard"); ?>
-													</label>
-													<select class="form-control w-100" id="job" v-model="jobs">
-														<option disabled
-														        selected><?php _e("Seleccioanr Aviso.", "wpjobboard"); ?></option>
-														<?php foreach ($jobsList as $job): ?>
-															<option value="<?php echo esc_html($job->id) ?>" <?php selected($job->id, $job_id) ?>><?php echo esc_html($job->job_title) ?></option>
-														<?php endforeach; ?>
-													</select>
-												</div>
-												<div class="form-group">
-													<label class="w-100">
-														<input type="text"
-														       class="form-control"
-														       v-model="keyPhrase"
-														       placeholder="<?php _e("Palabra clave o frase.", "wpjobboard"); ?>">
-													</label>
-												</div>
-												<div class="form-group">
-													<label><?php _e("Lugar de Residencia", "wpjobboard"); ?></label>
-													<label class="w-100">
-														<input type="text"
-														       class="form-control"
-														       v-model="residence"
-														       placeholder="<?php _e("Provincia/Estado.", "wpjobboard"); ?>">
-													</label>
-													<label class="w-100">
-														<input type="text"
-														       class="form-control"
-														       v-model="city"
-														       placeholder="<?php _e("Ciudad.", "wpjobboard"); ?>">
-													</label>
-												</div>
-												<div class="form-group">
-													<label><?php _e("Datos Personales", "wpjobboard"); ?></label>
-													<label class="w-100">
-														<input type="text"
-														       class="form-control"
-														       v-model="name"
-														       placeholder="<?php _e("Nombres.", "wpjobboard"); ?>">
-													</label>
-													<label class="w-100">
-														<input type="text"
-														       class="form-control"
-														       v-model="lastName"
-														       placeholder="<?php _e("Apellidos.", "wpjobboard"); ?>">
-													</label>
-													<label class="w-100">
-														<input type="email"
-														       class="form-control"
-														       v-model="email"
-														       placeholder="<?php _e("E-mail.", "wpjobboard"); ?>">
-													</label>
-												</div>
-											</div>
-										</div>
-										<div class="col-6">
-											<div class="form-group">
-												<label><?php _e("Tipo de Discapacidad", "wpjobboard"); ?></label>
-												<div class="container">
-													<div class="row">
-														<div class="col m-3">
-															<div class="form-group">
-																<input
-																		class="form-check-input"
-																		type="checkbox" value="Motriz"
-																		id="defaultCheck1" v-model="motriz">
-																<label for="defaultCheck1"><?php _e("Motriz", "wpjobboard"); ?></label>
-															</div>
-															<div class="form-group">
-																<input
-																		class="form-check-input" type="checkbox"
-																		v-model="auditive"
-																		value="Auditiva"
-																		id="defaultCheck2">
-																<label for="defaultCheck2"><?php _e("Auditiva", "wpjobboard"); ?></label>
-															</div>
-															<div class="form-group">
-																<input class="form-check-input"
-																       type="checkbox" value="Visual"
-																       v-model="visual"
-																       id="defaultCheck3">
-																<label for="defaultCheck3"><?php _e("Visual", "wpjobboard"); ?></label>
-															</div>
-															<div class="form-group">
-																<input
-																		class="form-check-input" type="checkbox"
-																		value="Visceral"
-																		v-model="visceral"
-																		id="defaultCheck4">
-																<label for="defaultCheck4"><?php _e("Visceral", "wpjobboard"); ?></label>
-															</div>
-														</div>
-														<div class="col m-3">
-															<div class="form-group">
-																<input class="form-check-input"
-																       type="checkbox" value="Intelectual"
-																       v-model="intelectual"
-																       id="defaultCheck5">
-																<label for="defaultCheck5"><?php _e("Intelectual", "wpjobboard"); ?>
-																</label>
-															</div>
-															<div class="form-group">
-																<input class="form-check-input"
-																       type="checkbox" value="Psiquica"
-																       v-model="psiquica"
-																       id="defaultCheck6">
-																<label for="defaultCheck6"><?php _e("Psiquica", "wpjobboard"); ?></label>
-															</div>
-															<div class="form-group">
-																<input class="form-check-input"
-																       type="checkbox" value="habla"
-																       id="defaultCheck7">
-																<label for="defaultCheck7"><?php _e("Habla", "wpjobboard"); ?></label>
-															</div>
-															<div class="form-group">
-																<input class="form-check-input"
-																       type="checkbox" value="Ninguna"
-																       v-model="ninguna"
-																       id="defaultCheck8">
-																<label for="defaultCheck8"><?php _e("Ninguna", "wpjobboard"); ?></label>
-															</div>
-														</div>
-													</div>
-												</div>
-											</div>
-											<div class="form-group">
-												<label><?php _e("Educación", "wpjobboard"); ?></label>
-												<label class="w-100">
-													<input type="text"
-													       class="form-control"
-													       v-model="education"
-													       placeholder="<?php _e("Instituto/Colegio/Universidad.", "wpjobboard"); ?>">
-												</label>
-												<label class="w-100">
-													<input type="text"
-													       class="form-control"
-													       v-model="course"
-													       placeholder="<?php _e("Carrera/Curso.", "wpjobboard"); ?>">
-												</label>
-												<label class="w-100">
-													<input type="text"
-													       class="form-control"
-													       v-model="description"
-													       placeholder="<?php _e("Descripción", "wpjobboard"); ?>">
-												</label>
-											</div>
-											<div class="form-group">
-												<label for="idioms"><?php _e("Idiomas.", "wpjobboard"); ?>
-												</label>
-												<select class="form-control w-100" id="idioms" v-model="idioms">
-													<option disabled
-													        selected><?php _e("Elegir Idioma.", "wpjobboard"); ?></option>
-													<option value="idioma_ingles">Inglés</option>
-													<option value="idioma_protugues">Portugues</option>
-													<option value="idioma_frances">Frances</option>
-													<option value="idioma_aleman">Alemán</option>
-												</select>
-												<div class="mt-1">
-													<div class="row">
-														<div class="col">
-															<label for="oral"><?php _e("Nivel Oral.", "wpjobboard"); ?>
-															</label>
-															<select class="form-control w-100" id="oral" v-model="oral">
-																<option disabled
-																        selected><?php _e("Elegir Nivel.", "wpjobboard"); ?></option>
-																<option>Básico</option>
-																<option>Intermedio</option>
-																<option>Avanzado</option>
-																<option>Bilingüe</option>
-															</select>
-														</div>
-														<div class="col">
-															<label for="escrito"><?php _e("Nivel Escrito.", "wpjobboard"); ?>
-															</label>
-															<select class="form-control w-100" id="escrito"
-															        v-model="letter">
-																<option disabled
-																        selected><?php _e("Elegir Nivel.", "wpjobboard"); ?></option>
-																<option>Básico</option>
-																<option>Intermedio</option>
-																<option>Avanzado</option>
-																<option>Bilingüe</option>
-															</select>
-														</div>
-													</div>
-												</div>
-											</div>
-										</div>
-									</div>
-									<hr class="w-100">
-									<div class="row">
-										<div class="col">
-											<div class="form-check form-check-inline">
-												<label class="form-check-label"
-												       for="inlineCheckbox1"><?php _e("Etiquetas:", "wpjobboard"); ?></label>
-											</div>
-											<div class="form-check form-check-inline">
-												<input class="form-check-input" type="checkbox" id="inlineCheckbox1"
-												       value="Leído" v-model="leido">
-												<label class="form-check-label"
-												       for="inlineCheckbox1"
-												       style="color: black"><?php _e("#Leído", "wpjobboard"); ?></label>
-											</div>
-											<div class="form-check form-check-inline">
-												<input class="form-check-input" type="checkbox" id="inlineCheckbox2"
-												       value="Seleccionado"
-												       v-model="seleccionado">
-												<label class="form-check-label"
-												       for="inlineCheckbox2"
-												       style="color: green"><?php _e("#Seleccionado", "wpjobboard"); ?></label>
-											</div>
-											<div class="form-check form-check-inline">
-												<input class="form-check-input" type="checkbox" id="inlineCheckbox2"
-												       value="Preseleccionado" v-model="preseleccionado">
-												<label class="form-check-label"
-												       for="inlineCheckbox2"
-												       style="color: orange"> <?php _e("#Preseleccionado", "wpjobboard"); ?></label>
-											</div>
-											<div class="form-check form-check-inline">
-												<input class="form-check-input" type="checkbox" id="inlineCheckbox2"
-												       value="Desestimado" v-model="desestimado">
-												<label class="form-check-label"
-												       for="inlineCheckbox2"
-												       style="color: red"><?php _e("#Desestimado", "wpjobboard"); ?></label>
-											</div>
-										</div>
-									</div>
-								</form>
-								<div v-else class="container" style="word-wrap: break-word;">
-									<p>{{message}}</p>
-								</div>
+							</form>
+							<div v-else class="container" style="word-wrap: break-word;">
+								<p>{{message}}</p>
 							</div>
 						</div>
-						<div class="modal-footer" v-if="!searchEnable">
-							<div class="container text-center">
-								<button
-										v-on:click="filterData(<?php echo esc_html(get_current_user_id() . ',"' . plugins_url() . '"'); ?>)"
-										type="button"
-										class="btn btn-lg
+					</div>
+					<div class="modal-footer" v-if="!searchEnable">
+						<div class="container text-center">
+							<button
+									v-on:click="filterData(<?php echo esc_html(get_current_user_id() . ',"' . plugins_url() . '"'); ?>)"
+									type="button"
+									class="btn btn-lg
 						                                                                           btn-secondary"><?php _e("Buscar", "wpjobboard"); ?></button>
-							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-	
-	<script type="text/javascript">
-        jQuery(function ($) {
-            $(document).ready(function () {
-                $('#buttomFilter').click(function () {
-                    $('#filterApplicants').appendTo("body").modal('toggle').modal('show');
-                });
+</div>
+
+<script type="text/javascript">
+    jQuery(function ($) {
+        $(document).ready(function () {
+            $('#buttomFilter').click(function () {
+                $('#filterApplicants').appendTo("body").modal('toggle').modal('show');
             });
         });
-	</script>
-
-<?php
-$js = plugins_url() . '/incluyeme/include/assets/js/';
-$css = plugins_url() . '/incluyeme/include/assets/css/';
-wp_register_script('bootstrapJs', $js . 'bootstrap.min.js', ['jquery']);
-wp_register_script('vueJS', $js . 'vueDEV.js', ['bootstrapJs']);
-wp_register_script('vueApp', $js . 'vueApp.js', ['vueJS']);
-wp_register_style('bootstrap-css', $css . 'bootstrap.min.css', ['wpjb-css']);
-wp_enqueue_script('bootstrapJs');
-wp_enqueue_script('vueJS');
-wp_enqueue_script('vueApp');
-wp_enqueue_style('bootstrap-css');
-?>
+    });
+</script>
