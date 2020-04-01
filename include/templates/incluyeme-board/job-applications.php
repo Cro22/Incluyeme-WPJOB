@@ -25,12 +25,14 @@ $js = plugins_url() . '/incluyeme/include/assets/js/';
 $css = plugins_url() . '/incluyeme/include/assets/css/';
 wp_register_script('bootstrapJs', $js . 'bootstrap.min.js', ['jquery'], '1.0.0');
 wp_register_script('vueJS', $js . 'vueDEV.js', ['bootstrapJs'], '1.0.0');
-wp_register_script('vueApp', $js . 'vueApp.js', ['vueJS'], '1.0.0');
-wp_register_style('bootstrap-css', $css. 'bootstrap.min.css', array(), '1.0.0' , false);
+wp_register_script('vueI', $js . 'vueI.js', ['vueJS'], '2.0.0');
+wp_register_style('bootstrap-css', $css.'bootstrap.min.css', [], '1.0.0', false);
 wp_enqueue_script('bootstrapJs');
 wp_enqueue_script('vueJS');
-wp_enqueue_script('vueApp');
+wp_enqueue_script('vueI');
 wp_enqueue_style('bootstrap-css');
+$baseurl = wp_upload_dir();
+$baseurl = $baseurl['baseurl'];
 ?>
 <script>
     var xFoo = document.createElement('x-incluyeme');
@@ -257,10 +259,23 @@ wp_enqueue_style('bootstrap-css');
 	</div>
 	<div class="container" v-else>
 		<x-incluyeme class="card mt-2" v-for="(data, index) of message" v-bind:key="data.application_id">
-			<x-incluyeme class="card-body">
+			<x-incluyeme class="card-body" v-if="data.discap">
 				<x-incluyeme class="row">
 					<x-incluyeme class="col-4">
-						IMG
+						<div class="container text-center">
+							
+							<img :src="data.img || 'http://1.gravatar.com/avatar/1429e4ea38b8997e13b9352dbb706079'"
+							     class="img-fluid rounded-circle"
+							     alt="user-img">
+						</div>
+						<div :style="{ cursor: 'pointer'}" class="container text-center pt-3 w-100 h-100 pb-3"
+						     v-on:click="changeFav(<?php echo esc_html(get_current_user_id() . ',"' . plugins_url() . '"'); ?>, data.rating? 1 : 2, data.resume_id)">
+							<span v-if='data.rating'
+							      class="wpjb-star-rating personal wpjb-motif wpjb-glyphs wpjb-icon-star-empty wpjb-star-checked"
+							      style="content: '\e806';"></span>
+							<span v-else
+							      class="wpjb-star-rating personal wpjb-motif wpjb-glyphs wpjb-icon-star-empty "></span>
+						</div>
 					</x-incluyeme>
 					<x-incluyeme class="col-8 text-left">
 						<x-incluyeme class="row">
@@ -276,6 +291,18 @@ wp_enqueue_style('bootstrap-css');
 									{{data.candidate_location+','}} {{data.candidate_state}}
 								</p>
 							</x-incluyeme>
+							<x-incluyeme class="col-12" v-if="data.contratante&&data.puesto">
+								<p><b>
+										{{data.puesto}} </b> en<b> {{data.contratante}}
+									</b>
+								</p>
+							</x-incluyeme>
+							<x-incluyeme class="col-12" v-if="data.titulo&&data.academia">
+								<p><b>
+										{{data.titulo}} </b>en <b>{{data.academia}}
+									</b>
+								</p>
+							</x-incluyeme>
 							<x-incluyeme class="col-12">
 								<p>
 									Discapacidad: {{data.discap}}
@@ -283,22 +310,22 @@ wp_enqueue_style('bootstrap-css');
 							</x-incluyeme>
 							<x-incluyeme class="col-12 mt-1">
 								<x-incluyeme class="row">
-									<x-incluyeme class="col m-2">
+									<x-incluyeme class="col m-2" v-if="data.CV !==false">
 										<x-incluyeme class="card">
 											<x-incluyeme class="card-body card-body text-center pt-1 pr-3 pl-3 pb-1">
 												<span>
-											<a>
+											<a class="view-pdf" :href="`${data.CV}`" target="_blank">
 												C.V
 											</a>
 													</span>
 											</x-incluyeme>
 										</x-incluyeme>
 									</x-incluyeme>
-									<x-incluyeme class="col m-2">
+									<x-incluyeme class="col m-2" v-if="data.CUD !==false">
 										<x-incluyeme class="card">
 											<x-incluyeme class="card-body card-body text-center pt-1 pr-3 pl-3 pb-1">
 												<span>
-											<a>
+											<a :href="`${data.CUD}`" target="_blank">
 												C.U.D
 											</a>
 													</span>
@@ -611,3 +638,14 @@ wp_enqueue_style('bootstrap-css');
         });
     });
 </script>
+<style>
+	span.wpjb-glyphs.wpjb-star-rating.personal:before {
+		font-size: 4rem !important;
+		padding-top: 1rem;
+	}
+	
+	span.wpjb-star-checked:before {
+		content: '\e806';
+	}
+
+</style>

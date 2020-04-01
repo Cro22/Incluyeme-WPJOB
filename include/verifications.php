@@ -5,11 +5,24 @@ $result = [];
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['id']) && !empty($_POST['id'])) {
 	$data = new WP_Incluyeme();
 	$data::setUserId($_POST['id']);
+	
+	if (!empty($_POST['val']) && !empty($_POST['resume']) && !empty($_POST['changes'])) {
+		$data::changeFavPub($_POST['val'], $_POST['resume']);
+	}
 	if (count($_POST['status']) !== 0 && is_array($_POST['status'])) {
 		$data::setStatus($_POST['status']);
 	}
+	if (count($_POST['course'])) {
+		$data::setCourse($_POST['course']);
+	}
+	if (count($_POST['education'])) {
+		$data::setEducation($_POST['education']);
+	}
 	if (!empty($_POST['city'])) {
 		$data::setCity($_POST['city']);
+	}
+	if (!empty($_POST['idioms'])) {
+		$data::setIdioms($_POST['idioms']);
 	}
 	if (!empty($_POST['jobs'])) {
 		$data::setJob($_POST['jobs']);
@@ -34,6 +47,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['id']) && !empty($_POST
 	}
 	if (!empty($_POST['residence'])) {
 		$data::setResidence($_POST['residence']);
+	}
+	if (!empty($_POST['keyPhrase'])) {
+		$data::setSearchPhrase($_POST['keyPhrase']);
 	}
 	if (count($_POST['selects']) !== 0 && is_array($_POST['selects'])) {
 		$data::setDisability($_POST['selects']);

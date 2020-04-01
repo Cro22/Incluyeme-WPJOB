@@ -30,7 +30,8 @@ let filterApplicants = new Vue({
         habla: false,
         ninguna: false,
         status: [],
-        selects: []
+        selects: [],
+        ult: false
     },
     mounted() {
         this.observer = new MutationObserver(mutations => {
@@ -52,7 +53,7 @@ let filterApplicants = new Vue({
         this.observer.disconnect();
     },
     methods: {
-        filterData: async function (userId, url) {
+        filterData: async function (userId, url, validate = false) {
             console.log({userId, url})
             this.searchEnable = true;
             url = url + '/incluyeme/include/verifications.php';
@@ -83,54 +84,87 @@ let filterApplicants = new Vue({
             select(this.intelectual, 'Intelectual');
             select(this.motriz, 'Motriz');
             let data = {
-                jobs: this.jobs,
-                city: this.city,
-                keyPhrase: this.keyPhrase,
-                course: this.course,
-                name: this.name,
-                lastName: this.lastName,
-                oral: this.oral,
-                idioms: this.idioms,
-                education: this.education,
-                description: this.description,
-                residence: this.residence,
-                letter: this.letter,
-                email: this.email,
-                motriz: this.motriz,
-                auditive: this.auditive,
-                visual: this.visual,
-                visceral: this.visceral,
-                intelectual: this.intelectual,
-                psiquica: this.psiquica,
-                habla: this.habla,
-                ninguna: this.ninguna,
                 id: userId
             };
+            this.ult = data;
+            if (this.keyPhrase !== null && this.keyPhrase !== '') {
+                data.keyPhrase = this.keyPhrase
+            }
+            if (validate) {
+                data = this.ult
+            }
             if (this.status.length) {
                 data.status = this.status
             }
             if (this.selects.length) {
                 data.selects = this.selects
             }
-            let request = await jQuery.ajax({
-                url: url,
-                data: data,
-                type: 'POST',
-                dataType: 'json'
-            }).done(success => {
-                return success
-            }).fail((error) => {
-                return 'Disculpe, hay un problema';
-            });
+            if (this.jobs !== null) {
+                data.jobs = this.jobs
+            }
+            if (this.city !== null && data.city !== '') {
+                data.city = this.city;
+            }
+            if (this.course !== null && data.course !== '') {
+                data.course = this.course;
+            }
+            if (this.name !== null && data.name !== '') {
+                data.name = this.name;
+            }
+            if (this.lastName !== null && data.lastName !== '') {
+                data.lastName = this.lastName;
+            }
+            if (this.email !== null && data.email !== '') {
+                data.email = this.email;
+            }
+            if (this.residence !== null && data.residence !== '') {
+                data.residence = this.residence;
+            }
+            if (this.letter !== null && data.letter !== '') {
+                data.letter = this.letter;
+            }
+            if (this.description !== null && data.description !== '') {
+                data.description = this.description;
+            }
+            if (this.education !== null && data.education !== '') {
+                data.education = this.education;
+            }if (this.idioms !== null && data.idioms !== '') {
+                data.idioms = this.idioms;
+            }
+            let
+                request = await jQuery.ajax({
+                    url: url,
+                    data: data,
+                    type: 'POST',
+                    dataType: 'json'
+                }).done(success => {
+                    return success
+                }).fail((error) => {
+                    return 'Disculpe, hay un problema';
+                });
             if (typeof request === 'string') {
                 this.message = request
             } else {
                 if (!Array.isArray(request.message)) {
-                    requestChange =  request.message;
-                    request.message =[];
+                    requestChange = request.message;
+                    request.message = [];
                     request.message.push(requestChange[1]);
                 }
                 if (request.message.length) {
+                    let k = function removeDuplicates(originalArray, prop) {
+                        var newArray = [];
+                        var lookupObject = {};
+
+                        for (var i in originalArray) {
+                            lookupObject[originalArray[i][prop]] = originalArray[i];
+                        }
+
+                        for (i in lookupObject) {
+                            newArray.push(lookupObject[i]);
+                        }
+                        return newArray;
+                    };
+                    request.message = k(request.message, 'resume_id');
                     for (let i in request.message) {
                         request.message[i].applicant_status = Number(request.message[i].applicant_status);
                         if (request.message[i].applicant_status === 3) {
@@ -156,6 +190,24 @@ let filterApplicants = new Vue({
                     this.message = 'No hay resultados';
                 }
             }
+        },
+        changeFav: async function (userId, url, val, resume) {
+            urls = url + '/incluyeme/include/verifications.php';
+
+            let data = {
+                id: userId, val, resume, changes: 25
+            };
+            await jQuery.ajax({
+                url: urls,
+                data: data,
+                type: 'POST',
+                dataType: 'json'
+            }).done(success => {
+                return success
+            }).fail((error) => {
+                return 'Disculpe, hay un problema';
+            });
+            this.filterData(userId, url, true);
         },
         onClassChange(classAttrValue) {
             const classList = classAttrValue.split(' ');

@@ -337,7 +337,7 @@ class WP_Filters_Incluyeme
 		return $response;
 	}
 	
-	public static function addQueries($sql)
+	public static function addQueries($sql, $phrase = false)
 	{
 		if (self::getJob() !== null) {
 			$sql .= 'AND %prefix%wpjb_job.id = ' . self::getJob() . ' ';
@@ -361,10 +361,37 @@ class WP_Filters_Incluyeme
 		if (self::getEmail() !== null) {
 			$sql .= 'AND %prefix%users.user_email = "' . self::getEmail() . '" ';
 		}
+		if (self::getSearchPhrase() !== null && $phrase) {
+			$sql .= 'AND ( %prefix%usermeta.meta_value Like  "%' . self::getSearchPhrase() . '%" ';
+			$sql .= 'OR %prefix%wpjb_application.status Like "%' . self::getSearchPhrase() . '%" ';
+			$sql .= 'OR %prefix%wpjb_resume.candidate_state Like "%' . self::getSearchPhrase() . '%" ';
+			$sql .= 'OR %prefix%wpjb_resume.candidate_location Like "%' . self::getSearchPhrase() . '%" ';
+			$sql .= 'OR %prefix%usermeta.meta_value  Like "%' . self::getSearchPhrase() . '%" ';
+			$sql .= 'OR  edu.grantor  Like "%' . self::getSearchPhrase() . '%" ';
+			$sql .= 'OR edu.detail_title  Like "%' . self::getSearchPhrase() . '%" ';
+			$sql .= 'OR %prefix%users.user_email Like "%' . self::getSearchPhrase() . '%" )';
+		}
+		if (self::getLastName() !== null) {
+			$sql .= 'AND lVal.meta_value Like "%' . self::getLastName() . '%" ';
+		}
+		if (self::getCourse() !== null) {
+			$sql .= 'AND edu.detail_title Like "%' . self::getCourse() . '%" ';
+		}
+		if (self::getEducation() !== null) {
+			$sql .= 'AND edu.grantor Like "%' . self::getEducation() . '%" ';
+		}
+		if (self::getIdioms() !== null) {
+			$sql .= 'AND idioms.name = "' . self::getIdioms() . '" ';
+			$sql .= 'AND idiomsV.value != "No hablo" ';
+		}
+		if (self::getDisability() !== null) {
+			$sql .= 'AND lValue.value in ( %disability% ) ';
+			$sql = self::changePrefix($sql, '%disability%', '"' . implode('","', self::getDisability()) . '"');
+		}
 		return $sql;
 	}
 	
-	public static function addQueriesSecondSQL($sql)
+	public static function addQueriesSecondSQL($sql, $phrase = false)
 	{
 		if (self::getLastName() !== null) {
 			$sql .= 'AND %prefix%usermeta.meta_value Like "%' . self::getLastName() . '%" ';
@@ -373,33 +400,129 @@ class WP_Filters_Incluyeme
 			$sql .= 'AND %prefix%wpjb_meta_value.value in ( %disability% ) ';
 			$sql = self::changePrefix($sql, '%disability%', '"' . implode(',', self::getDisability()) . '"');
 		}
-		
 		return $sql;
 	}
 	
 	public static function unionObjectsIncluyeme($obj, $mix, $param, $paramMix)
 	{
-		if (!is_array($obj) || !is_array($mix) || empty($param) || empty($paramMix)) {
-			throw new Exception('Invalid data passing to this function: unionObjectsIncluyeme');
-		}
-		$positions = [];
-		for ($i = 0; $i < count($obj); $i++) {
-			foreach ($mix as $itemsMix) {
-				if ($obj[$i]->$param === $itemsMix->$paramMix) {
-					unset($itemsMix->$paramMix);
-					foreach ($itemsMix as $key => $value) {
-						$obj[$i]->$key = $value;
+		
+		try {
+			if (!is_array($obj) || !is_array($mix) || empty($param) || empty($paramMix)) {
+				throw new Exception('Invalid data passing to this function: unionObjectsIncluyeme');
+			}
+			$positions = [];
+			for ($i = 0; $i < count($obj); $i++) {
+				foreach ($mix as $itemsMix) {
+					if ($obj[$i]->$param === $itemsMix->$paramMix) {
+						unset($itemsMix->$paramMix);
+						foreach ($itemsMix as $key => $value) {
+							$obj[$i]->$key = $value;
+						}
 					}
-				} else {
-					array_push($positions, $i);
 				}
 			}
+			return $obj;
+		} catch (Exception $e) {
+			return $obj;
 		}
-		if(count($obj)!== count($positions)) {
-			foreach ($positions as $eliminated) {
-				unset($obj[$eliminated]);
+	}
+	
+	public function deleteData($obj)
+	{
+		for ($i = 0; $i < count($obj); $i++) {
+			$exists = array_key_exists('discap', get_object_vars($obj[$i]));
+			if (!property_exists($obj[$i], 'discap') || property_exists($obj[$i], 'discap') === null || !$exists) {
+				unset($obj[$i]);
+			}
+		}
+		$obj = array_merge($obj);
+		return $obj;
+	}
+	
+	public function getCV($obj)
+	{
+		$path = wp_upload_dir();
+		$basePath = $path['basedir'];
+		$baseDir = $path['baseurl'];
+		for ($i = 0; $i < count($obj); $i++) {
+			$route = $basePath . '/wpjobboard/resume/' . $obj[$i]->resume_id;
+			$dir = $baseDir . '/wpjobboard/resume/' . $obj[$i]->resume_id;
+			if (file_exists($route)) {
+				if (file_exists($route . '/cv/')) {
+					$search = opendir($route . '/cv/');
+					while ($file = readdir($search)) {
+						$obj[$i]->CV = $dir . '/cv/' . $file;
+					}
+				} else {
+					$obj[$i]->CV = false;
+				}
+				if (file_exists($route . '/image/')) {
+					$search = opendir($route . '/image/');
+					while ($file = readdir($search)) {
+						$obj[$i]->img = $dir . '/image/' . $file;
+					}
+				} else {
+					$obj[$i]->CUD = false;
+				}
+				if (file_exists($route . '/certificado-discapacidad/')) {
+					$search = opendir($route . '/certificado-discapacidad/');
+					while ($file = readdir($search)) {
+						$obj[$i]->CUD = $dir . '/certificado-discapacidad/' . $file;
+					}
+				} else {
+					$obj[$i]->img = false;
+				}
+			} else {
+				$obj[$i]->img = false;
+				$obj[$i]->CUD = false;
+				$obj[$i]->CV = false;
 			}
 		}
 		return $obj;
 	}
+	
+	public static function unionObjectsRating($obj, $mix, $param, $paramMix)
+	{
+		
+		try {
+			if (!is_array($obj) || !is_array($mix) || empty($param) || empty($paramMix)) {
+				throw new Exception('Invalid data passing to this function: unionObjectsIncluyeme');
+			}
+			for ($i = 0; $i < count($obj); $i++) {
+				foreach ($mix as $itemsMix) {
+					if ($obj[$i]->$param === $itemsMix->$paramMix) {
+						unset($itemsMix->$paramMix);
+						foreach ($itemsMix as $key => $value) {
+							$obj[$i]->$key = $value;
+						}
+					}
+				}
+			}
+			return $obj;
+		} catch (Exception $e) {
+			return $obj;
+		}
+	}
+	
+	public static function changeFavPub($exist = false, $id = false)
+	{
+		global $wpdb;
+		if ($exist == 1 && $id !== false) {
+			$query = 'DELETE
+  FROM %prefix%wpjb_meta_value
+WHERE object_id = ' . $id . '
+  AND meta_id = (SELECT
+      %prefix%wpjb_meta.id
+    FROM %prefix%wpjb_meta
+    WHERE %prefix%wpjb_meta.name = \'rating\')';
+			$query = self::changePrefix($query);
+			$wpdb->query($query);
+		} else {
+			$query = 'INSERT INTO wp_wpjb_meta_value (meta_id, object_id, value)
+  VALUES ((SELECT wp_wpjb_meta.id FROM wp_wpjb_meta WHERE wp_wpjb_meta.name = \'rating\'), (' . $id . '), 5)';
+			$query = self::changePrefix($query);
+			$wpdb->query($query);
+		}
+	}
 }
+
