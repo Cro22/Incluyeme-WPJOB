@@ -353,7 +353,7 @@ $baseurl = $baseurl['baseurl'];
 			</x-incluyeme>
 	</div>
 	<?php if (!empty($apps->application)): ?>
-		<div class="wpjb-paginate-links">
+		<div class="wpjb-paginate-links" v-if="message===false">
 			<?php wpjb_paginate_links($url, $apps->pages, $apps->page) ?>
 		</div>
 	<?php endif; ?>

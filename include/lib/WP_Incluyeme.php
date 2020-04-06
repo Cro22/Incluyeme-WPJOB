@@ -102,7 +102,6 @@ WHERE
 			$queries = $this->addQueries($query);
 		}
 		$queries .= $group;
-		error_log(print_r($this->changePrefix($queries), true));
 		$results = $this->executeQueries($this->changePrefix($queries));
 		if (count($results) === 0) {
 			$queries = $this->addQueries($query);
@@ -111,13 +110,18 @@ WHERE
 		}
 		try {
 			if (count($results) !== 0) {
-				$rating = [];
 				$response = $this->getCV($results);
-				foreach ($response as $item) {
-					array_push($rating, $item->users_id);
+				for ($i = 0; $i < count($response); $i++) {
+					$rating = $this->getExtraRating($response[$i]->users_id);
+					if (count($rating) > 0) {
+						if ($response[$i]->users_id === $rating[0]->users_id) {
+							$response[$i]->rating = $rating[0]->rating;
+						}
+					} else {
+						$response[$i]->rating = false;
+					}
 				}
-				$rating = $this->getExtraRating($rating);
-				return $this->deleteData(self::unionObjectsRating($response, $rating, 'users_id', 'ID'));
+				return array_unique($this->deleteData($response), SORT_REGULAR);
 			}
 			return $response = [];
 		} catch (Exception $e) {
@@ -198,7 +202,7 @@ AND %prefix%usermeta.meta_key = \'last_name\'
 	{
 		$query = 'SELECT
   %prefix%wpjb_meta_value.value as rating,
-%prefix%users.ID
+%prefix%users.ID as users_id
 FROM  %prefix%wpjb_resume
   INNER JOIN %prefix%users
     ON %prefix%users.ID = %prefix%wpjb_resume.user_id
@@ -222,7 +226,7 @@ FROM  %prefix%wpjb_resume
     ON %prefix%wpjb_job.employer_id = %prefix%wpjb_company.id
 WHERE %prefix%wpjb_meta.name = "rating"
   AND %prefix%wpjb_company.user_id = %userID%
-  AND %prefix%users.ID in (%resume%)';
+  AND %prefix%users.ID = %resume% ';
 		
 		$group = 'GROUP BY %prefix%users.user_email,
          %prefix%users.display_name,
@@ -237,15 +241,9 @@ WHERE %prefix%wpjb_meta.name = "rating"
          %prefix%usermeta.meta_value,
          %prefix%wpjb_resume.candidate_state,
          %prefix%wpjb_resume.candidate_location,
-          %prefix%users.ID';
-		$queries = '';
-		if ($this->getSearchPhrase() !== null) {
-			$queries = $this->addQueriesSecondSQL($query, true);
-		} else {
-			$queries = $this->addQueriesSecondSQL($query);
-		}
-		$queries .= $group;
-		$result = $this->executeQueries($this->changePrefix($queries, '%resume%', implode(',', $userId)));
+          %prefix%users.ID  LIMIT 1';
+		$query .= $group;
+		$result = $this->executeQueries($this->changePrefix($query, '%resume%', $userId));
 		try {
 			if (count($result) === 0) {
 				return false;

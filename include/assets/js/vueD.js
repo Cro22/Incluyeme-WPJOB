@@ -1,4 +1,4 @@
-
+Vue.config.ignoredElements = ['x-incluyeme']
 let filterApplicants = new Vue({
     el: '#incluyeme-wpjb',
     data: {
@@ -187,7 +187,6 @@ let filterApplicants = new Vue({
                         }
                     }
                     this.message = request.message;
-                    console.log(this.message)
                 } else {
                     this.message = 'No hay resultados';
                 }
@@ -209,7 +208,7 @@ let filterApplicants = new Vue({
             }).fail((error) => {
                 return 'Disculpe, hay un problema';
             });
-            this.filterData(userId, url, true);
+            this.filterData(this.img, userId, url, true);
         },
         openPDF(PDF) {
             window.open(PDF);

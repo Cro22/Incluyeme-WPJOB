@@ -334,7 +334,7 @@ class WP_Filters_Incluyeme
 			}
 			array_push($response, $change);
 		}
-		return $response;
+		return array_unique($response, SORT_REGULAR);
 	}
 	
 	public static function addQueries($sql, $phrase = false)
@@ -446,6 +446,8 @@ class WP_Filters_Incluyeme
 	
 	public function getCV($obj)
 	{
+		
+		
 		$path = wp_upload_dir();
 		$basePath = $path['basedir'];
 		$baseDir = $path['baseurl'];
@@ -454,28 +456,49 @@ class WP_Filters_Incluyeme
 			$dir = $baseDir . '/wpjobboard/resume/' . $obj[$i]->resume_id;
 			if (file_exists($route)) {
 				if (file_exists($route . '/cv/')) {
-					$search = opendir($route . '/cv/');
-					while ($file = readdir($search)) {
-						$obj[$i]->CV = $dir . '/cv/' . $file;
+					$folder = @scandir($route . '/cv/');
+					if (count($folder) > 2) {
+						$search = opendir($route . '/cv/');
+						while ($file = readdir($search)) {
+							if($file != "." and $file != ".." and $file != "index.php"){
+								$obj[$i]->CV = $dir . '/cv/' . $file;
+							}
+						}
+					} else {
+						$obj[$i]->CV = false;
 					}
 				} else {
 					$obj[$i]->CV = false;
 				}
 				if (file_exists($route . '/image/')) {
-					$search = opendir($route . '/image/');
-					while ($file = readdir($search)) {
-						$obj[$i]->img = $dir . '/image/' . $file;
-					}
-				} else {
-					$obj[$i]->CUD = false;
-				}
-				if (file_exists($route . '/certificado-discapacidad/')) {
-					$search = opendir($route . '/certificado-discapacidad/');
-					while ($file = readdir($search)) {
-						$obj[$i]->CUD = $dir . '/certificado-discapacidad/' . $file;
+					$folder = @scandir($route . '/image/');
+					if (count($folder) > 2) {
+						$search = opendir($route . '/image/');
+						while ($file = readdir($search)) {
+							if($file != "." and $file != ".." and $file != "index.php"){
+								$obj[$i]->img = $dir . '/image/' . $file;
+							}
+						}
+					} else {
+						$obj[$i]->img = false;
 					}
 				} else {
 					$obj[$i]->img = false;
+				}
+				if (file_exists($route . '/certificado-discapacidad/')) {
+					$folder = @scandir($route . '/certificado-discapacidad/');
+					if (count($folder) > 2) {
+						$search = opendir($route . '/certificado-discapacidad/');
+						while ($file = readdir($search)) {
+							if($file != "." and $file != ".." and $file != "index.php"){
+								$obj[$i]->CUD = $dir . '/certificado-discapacidad/' . $file;
+							}
+						}
+					} else {
+						$obj[$i]->CUD = false;
+					}
+				} else {
+					$obj[$i]->CUD = false;
 				}
 			} else {
 				$obj[$i]->img = false;
