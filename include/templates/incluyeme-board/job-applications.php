@@ -22,14 +22,15 @@
 ?>
 <?php
 $js = plugins_url() . '/incluyeme/include/assets/js/';
+$img = plugins_url() . '/incluyeme/include/assets/img/incluyeme-place.svg';
 $css = plugins_url() . '/incluyeme/include/assets/css/';
 wp_register_script('bootstrapJs', $js . 'bootstrap.min.js', ['jquery'], '1.0.0');
 wp_register_script('vueJS', $js . 'vueDEV.js', ['bootstrapJs'], '1.0.0');
-wp_register_script('vueI', $js . 'vueI.js', ['vueJS'], '2.0.0');
-wp_register_style('bootstrap-css', $css.'bootstrap.min.css', [], '1.0.0', false);
+wp_register_script('vueD', $js . 'vueD.js', ['vueJS'], '2.0.0');
+wp_register_style('bootstrap-css', $css . 'bootstrap.min.css', [], '1.0.0', false);
 wp_enqueue_script('bootstrapJs');
 wp_enqueue_script('vueJS');
-wp_enqueue_script('vueI');
+wp_enqueue_script('vueD');
 wp_enqueue_style('bootstrap-css');
 $baseurl = wp_upload_dir();
 $baseurl = $baseurl['baseurl'];
@@ -257,15 +258,16 @@ $baseurl = $baseurl['baseurl'];
 			</div>
 		</div>
 	</div>
-	<div class="container" v-else>
+	<div class="container w-auto m-2" v-else>
 		<x-incluyeme class="card mt-2" v-for="(data, index) of message" v-bind:key="data.application_id">
 			<x-incluyeme class="card-body" v-if="data.discap">
 				<x-incluyeme class="row">
 					<x-incluyeme class="col-4">
 						<div class="container text-center">
 							
-							<img :src="data.img || 'http://1.gravatar.com/avatar/1429e4ea38b8997e13b9352dbb706079'"
-							     class="img-fluid rounded-circle"
+							<img :src="data.img ||img"
+							     class="rounded-circle"
+							     style="max-width: 5rem; max-height: 5rem;"
 							     alt="user-img">
 						</div>
 						<div :style="{ cursor: 'pointer'}" class="container text-center pt-3 w-100 h-100 pb-3"
@@ -281,7 +283,8 @@ $baseurl = $baseurl['baseurl'];
 						<x-incluyeme class="row">
 							<x-incluyeme class="col-12">
 										<span class="wpjb-manage-header-left wpjb-line-major wpjb-manage-title">
-											<a v-bind:href="data.guid">
+											<a v-bind:href="data.guid" :style="{ cursor: 'pointer'}"
+											   v-on:click='openPDF(data.guid)'>
 												{{data.last_name ? data.last_name+',' : ''}} {{data.first_name}}
 											</a>
 										</span>
@@ -314,7 +317,8 @@ $baseurl = $baseurl['baseurl'];
 										<x-incluyeme class="card">
 											<x-incluyeme class="card-body card-body text-center pt-1 pr-3 pl-3 pb-1">
 												<span>
-											<a class="view-pdf" :href="`${data.CV}`" target="_blank">
+											<a class="view-pdf" :style="{ cursor: 'pointer'}"
+											   v-on:click='openPDF(data.CV)'>
 												C.V
 											</a>
 													</span>
@@ -325,7 +329,7 @@ $baseurl = $baseurl['baseurl'];
 										<x-incluyeme class="card">
 											<x-incluyeme class="card-body card-body text-center pt-1 pr-3 pl-3 pb-1">
 												<span>
-											<a :href="`${data.CUD}`" target="_blank">
+											<a v-on:click='openPDF(data.CUD)' :style="{ cursor: 'pointer'}">
 												C.U.D
 											</a>
 													</span>
@@ -617,7 +621,7 @@ $baseurl = $baseurl['baseurl'];
 					<div class="modal-footer" v-if="!searchEnable">
 						<div class="container text-center">
 							<button
-									v-on:click="filterData(<?php echo esc_html(get_current_user_id() . ',"' . plugins_url() . '"'); ?>)"
+									v-on:click="filterData(<?php echo esc_html('"'.$img . '",' . get_current_user_id() . ',"' . plugins_url() . '"'); ?>)"
 									type="button"
 									class="btn btn-lg
 						                                                                           btn-secondary"><?php _e("Buscar", "wpjobboard"); ?></button>
@@ -640,7 +644,7 @@ $baseurl = $baseurl['baseurl'];
 </script>
 <style>
 	span.wpjb-glyphs.wpjb-star-rating.personal:before {
-		font-size: 4rem !important;
+		font-size: 3rem !important;
 		padding-top: 1rem;
 	}
 	

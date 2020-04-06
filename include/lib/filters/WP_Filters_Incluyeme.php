@@ -369,7 +369,9 @@ class WP_Filters_Incluyeme
 			$sql .= 'OR %prefix%usermeta.meta_value  Like "%' . self::getSearchPhrase() . '%" ';
 			$sql .= 'OR  edu.grantor  Like "%' . self::getSearchPhrase() . '%" ';
 			$sql .= 'OR edu.detail_title  Like "%' . self::getSearchPhrase() . '%" ';
-			$sql .= 'OR %prefix%users.user_email Like "%' . self::getSearchPhrase() . '%" )';
+			$sql .= 'OR %prefix%wpjb_resume_detail.detail_title  Like "%' . self::getSearchPhrase() . '%" ';
+			$sql .= 'OR %prefix%wpjb_resume_detail.detail_description  Like "%' . self::getSearchPhrase() . '%" ';
+			$sql .= 'OR %prefix%users.user_email Like "%' . self::getSearchPhrase() . '%" ) ';
 		}
 		if (self::getLastName() !== null) {
 			$sql .= 'AND lVal.meta_value Like "%' . self::getLastName() . '%" ';
@@ -379,6 +381,9 @@ class WP_Filters_Incluyeme
 		}
 		if (self::getEducation() !== null) {
 			$sql .= 'AND edu.grantor Like "%' . self::getEducation() . '%" ';
+		}
+		if (self::getDescription() !== null) {
+			$sql .= 'AND  edu.detail_description Like "%' . self::getDescription() . '%" ';
 		}
 		if (self::getIdioms() !== null) {
 			$sql .= 'AND idioms.name = "' . self::getIdioms() . '" ';

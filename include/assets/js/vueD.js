@@ -31,7 +31,8 @@ let filterApplicants = new Vue({
         ninguna: false,
         status: [],
         selects: [],
-        ult: false
+        ult: false,
+        img: false
     },
     mounted() {
         this.observer = new MutationObserver(mutations => {
@@ -53,7 +54,8 @@ let filterApplicants = new Vue({
         this.observer.disconnect();
     },
     methods: {
-        filterData: async function (userId, url, validate = false) {
+        filterData: async function (img, userId, url, validate = false) {
+            this.img = img;
             console.log({userId, url})
             this.searchEnable = true;
             url = url + '/incluyeme/include/verifications.php';
@@ -208,6 +210,10 @@ let filterApplicants = new Vue({
                 return 'Disculpe, hay un problema';
             });
             this.filterData(userId, url, true);
+        },
+        openPDF(PDF) {
+            window.open(PDF);
+            return false;
         },
         onClassChange(classAttrValue) {
             const classList = classAttrValue.split(' ');

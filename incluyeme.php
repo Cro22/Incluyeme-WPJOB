@@ -9,7 +9,7 @@ Plugin Name: Incluyeme
 Plugin URI: https://github.com/Cro22
 Description: Extension de funciones para el Plugin WPJob Board
 Author: Jesus Nuñez
-Version: 1.0.0
+Version: 1.0.2
 Author URI: https://github.com/Cro22
 Text Domain: incluyeme
 Domain Path: /languages

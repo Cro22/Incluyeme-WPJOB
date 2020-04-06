@@ -24,6 +24,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['id']) && !empty($_POST
 	if (!empty($_POST['idioms'])) {
 		$data::setIdioms($_POST['idioms']);
 	}
+	if (!empty($_POST['description'])) {
+		$data::setDescription($_POST['description']);
+	}
 	if (!empty($_POST['jobs'])) {
 		$data::setJob($_POST['jobs']);
 	}
