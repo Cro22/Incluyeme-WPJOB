@@ -38,11 +38,11 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
 FROM %prefix%wpjb_resume
   INNER JOIN %prefix%users
     ON %prefix%users.ID = %prefix%wpjb_resume.user_id
-  LEFT OUTER JOIN %prefix%wpjb_resume_search
+  INNER JOIN %prefix%wpjb_resume_search
     ON %prefix%wpjb_resume.id = %prefix%wpjb_resume_search.resume_id
-  LEFT OUTER JOIN %prefix%wpjb_application
+  INNER JOIN %prefix%wpjb_application
     ON %prefix%wpjb_resume.user_id = %prefix%wpjb_application.user_id
-  LEFT OUTER JOIN %prefix%wpjb_job
+  INNER JOIN %prefix%wpjb_job
     ON %prefix%wpjb_application.job_id = %prefix%wpjb_job.id
   LEFT OUTER JOIN %prefix%wpjb_meta_value
     ON %prefix%wpjb_resume.id = %prefix%wpjb_meta_value.object_id
@@ -78,36 +78,37 @@ FROM %prefix%wpjb_resume
 WHERE
  %prefix%wpjb_company.user_id = %userID% ";
 		
-		$group = 'GROUP BY %prefix%users.ID,
-         %prefix%wpjb_application.id,
-         %prefix%wpjb_resume.id,
-         %prefix%usermeta.meta_key,
-         %prefix%usermeta.meta_value,
-         %prefix%wpjb_resume.candidate_state,
-         %prefix%wpjb_resume.candidate_location,
-         lValue.value,
-         %prefix%usermeta.meta_value,
-         meta.name,
-         %prefix%wpjb_resume_detail.grantor,
-         %prefix%wpjb_resume_detail.detail_title,
-         edu.grantor,
-         edu.detail_title,
-         %prefix%usermeta.meta_value,
-         %prefix%wpjb_resume_detail.type,
-         %prefix%wpjb_resume_detail.type,
-   lVal.meta_value';
+		$group = '
+  GROUP BY   %prefix%users.user_email,
+  %prefix%users.display_name,
+  %prefix%wpjb_resume.phone,
+  %prefix%wpjb_resume.description,
+  %prefix%wpjb_job.job_title,
+  %prefix%posts.guid,
+  %prefix%usermeta.meta_key,
+applicant_status,
+first_name,
+  %prefix%wpjb_resume.candidate_state,
+  %prefix%wpjb_resume.candidate_location,
+  users_id,
+ application_id,
+  %prefix%wpjb_resume.id,
+ discap,
+last_name,
+ type_discap,
+  contratante,
+ puesto,
+ WType,
+ academia,
+ titulo,
+ eduType';
 		if ($this->getSearchPhrase() !== null) {
 			$queries = $this->addQueries($query, true);
 		} else {
 			$queries = $this->addQueries($query);
 		}
-		$queries .= $group;
+		$queries = $queries . $group;
 		$results = $this->executeQueries($this->changePrefix($queries));
-		if (count($results) === 0) {
-			$queries = $this->addQueries($query);
-			$queries .= $group;
-			$results = $this->executeQueries($this->changePrefix($queries));
-		}
 		try {
 			if (count($results) !== 0) {
 				$response = $this->getCV($results);
@@ -121,80 +122,11 @@ WHERE
 						$response[$i]->rating = false;
 					}
 				}
-				return array_unique($this->deleteData($response), SORT_REGULAR);
+				return array_unique($response, SORT_REGULAR);
 			}
 			return $response = [];
 		} catch (Exception $e) {
 			throw new Exception('Invalid data passing to this function: searchModifiedIncluyeme' . $e);
-		}
-	}
-	
-	private function getExtraData($userId, $probe = false)
-	{
-		$query = 'SELECT
-  %prefix%wpjb_meta.name,
-  %prefix%wpjb_meta_value.value,
-  %prefix%usermeta.meta_key,
-  %prefix%usermeta.meta_value,
-%prefix%users.ID
-FROM  %prefix%wpjb_resume
-  INNER JOIN %prefix%users
-    ON %prefix%users.ID = %prefix%wpjb_resume.user_id
-  LEFT JOIN %prefix%wpjb_resume_search
-    ON %prefix%wpjb_resume.id = %prefix%wpjb_resume_search.resume_id
-  LEFT JOIN %prefix%wpjb_application
-    ON %prefix%wpjb_resume.user_id = %prefix%wpjb_application.user_id
-  LEFT JOIN %prefix%wpjb_job
-    ON %prefix%wpjb_application.job_id = %prefix%wpjb_job.id
-  LEFT JOIN %prefix%wpjb_meta_value
-    ON %prefix%wpjb_resume.id = %prefix%wpjb_meta_value.object_id
-  LEFT JOIN %prefix%wpjb_meta
-    ON %prefix%wpjb_meta_value.meta_id = %prefix%wpjb_meta.id
-  LEFT JOIN %prefix%wpjb_tagged
-    ON %prefix%wpjb_resume.id = %prefix%wpjb_tagged.id
-  LEFT JOIN %prefix%posts
-    ON %prefix%wpjb_resume.post_id = %prefix%posts.ID
-  LEFT JOIN %prefix%usermeta
-    ON %prefix%users.ID = %prefix%usermeta.user_id
-  LEFT JOIN %prefix%wpjb_company
-    ON %prefix%wpjb_job.employer_id = %prefix%wpjb_company.id
-WHERE %prefix%wpjb_meta.name = \'tipo_discapacidad\'
-AND %prefix%usermeta.meta_key = \'last_name\'
-  AND %prefix%wpjb_company.user_id = %userID%
-  AND %prefix%users.ID in (%resume%)';
-		
-		$group = 'GROUP BY %prefix%users.user_email,
-         %prefix%users.display_name,
-         %prefix%wpjb_resume.phone,
-         %prefix%wpjb_resume.description,
-         %prefix%wpjb_application.applicant_name,
-         %prefix%wpjb_job.job_title,
-         %prefix%posts.guid,
-         %prefix%wpjb_meta.name,
-         %prefix%wpjb_meta_value.value,
-         %prefix%usermeta.meta_key,
-         %prefix%usermeta.meta_value,
-         %prefix%wpjb_resume.candidate_state,
-         %prefix%wpjb_resume.candidate_location,
-          %prefix%users.ID';
-		$queries = '';
-		if ($this->getSearchPhrase() !== null) {
-			$queries = $this->addQueriesSecondSQL($query, true);
-		} else {
-			$queries = $this->addQueriesSecondSQL($query);
-		}
-		$queries .= $group;
-		$result = $this->executeQueries($this->changePrefix($queries, '%resume%', implode(',', $userId)));
-		try {
-			if (count($result) === 0) {
-				return false;
-			}
-			$result = $this->changeObjectReferenceIncluyeme($result, 'meta_value', 'last_name', 'meta_key');
-			$result = $this->changeObjectReferenceIncluyeme($result, 'name', 'type_discap', 'meta_key');
-			$result = $this->changeObjectReferenceIncluyeme($result, 'value', 'discap', 'meta_key');
-			return $result;
-		} catch (Exception $e) {
-			throw new Exception('Invalid data passing to this function: getExtraData' . $e);
 		}
 	}
 	

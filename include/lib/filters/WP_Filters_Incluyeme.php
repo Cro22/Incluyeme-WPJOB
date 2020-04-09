@@ -532,6 +532,32 @@ class WP_Filters_Incluyeme
 		}
 	}
 	
+	public static function changeStatus($id, $status, $jobs = false)
+	{
+		global $wpdb;
+		$query = false;
+		if ($jobs !== false) {
+			$query = 'UPDATE %prefix%wpjb_application
+SET status = ' . $status . '
+WHERE user_id = ' . $id . '
+AND job_id = ' . $jobs;
+		} else {
+			$query = 'UPDATE  %prefix%wpjb_application
+SET status = ' . $status . '
+WHERE user_id = ' . $id . '
+AND job_id IN (SELECT
+     %prefix%wpjb_job.id
+  FROM  %prefix%wpjb_job
+  LEFT JOIN %prefix%wpjb_company
+    ON %prefix%wpjb_job.employer_id = %prefix%wpjb_company.id
+WHERE %prefix%wpjb_company.user_id =' . self::getUserId() . ')';
+		}
+		if ($query) {
+			$query = self::changePrefix($query);
+			$wpdb->query($query);
+		}
+	}
+	
 	public static function changeFavPub($exist = false, $id = false)
 	{
 		global $wpdb;

@@ -32,7 +32,9 @@ let filterApplicants = new Vue({
         status: [],
         selects: [],
         ult: false,
-        img: false
+        img: false,
+        url: '',
+        selected: 1
     },
     mounted() {
         this.observer = new MutationObserver(mutations => {
@@ -56,12 +58,12 @@ let filterApplicants = new Vue({
     methods: {
         filterData: async function (img, userId, url, validate = false) {
             this.img = img;
-            console.log({userId, url})
             this.searchEnable = true;
             url = url + '/incluyeme/include/verifications.php';
-            jQuery("#filterApplicants").modal('hide');//ocultamos el modal
-            jQuery('body').removeClass('modal-open');//eliminamos la clase del body para poder hacer scroll
-            jQuery('.modal-backdrop').remove();//eliminamos el backdrop del modal
+            this.url = url;
+            jQuery("#filterApplicants").modal('hide');
+            jQuery('body').removeClass('modal-open');
+            jQuery('.modal-backdrop').remove();
             this.message = 'Buscando...';
             const statuses = (val, number) => {
                 if (val) {
@@ -101,7 +103,7 @@ let filterApplicants = new Vue({
             if (this.selects.length) {
                 data.selects = this.selects
             }
-            if (this.jobs !== null) {
+            if (this.jobs !== null && this.jobs !== '0') {
                 data.jobs = this.jobs
             }
             if (this.city !== null && data.city !== '') {
@@ -183,7 +185,7 @@ let filterApplicants = new Vue({
                             request.message[i].read = '#Seleccionado'
                         } else if (request.message[i].applicant_status === 0) {
                             request.message[i].color = '1px solid red';
-                            request.message[i].read = ' #Desestimado';
+                            request.message[i].read = '#Desestimado';
                         }
                     }
                     this.message = request.message;
@@ -246,6 +248,50 @@ let filterApplicants = new Vue({
                 this.status = [];
                 this.selects = [];
             }
+        },
+        onChange: async function (userId, status, resume) {
+            let message = 'Estatus desconocido';
+            if (status === 3) {
+                message = '#Leido'
+            } else if (status === 1) {
+                message = '#Nuevo'
+            } else if (status === 4) {
+                message = '#Preseleccionado'
+            } else if (status === 2) {
+                message = '#Seleccionado'
+            } else if (status === 0) {
+                message = '#Desestimado';
+            }
+            let data = {
+                id: userId,
+                resume: resume, statusChange: status,
+                read: true,
+                jobs: this.jobs
+            };
+            await jQuery.ajax({
+                url: this.url,
+                data: data,
+                type: 'POST',
+                dataType: 'json'
+            }).done(success => {
+                iziToast.success({
+                    title: 'OK',
+                    message: 'Usuario marcado como <b>' + message + '</b>',
+                    progressBarColor: 'rgb(0, 255, 184)',
+                    buttons: [
+                        ['<button>Cerrar</button>', function (instance, toast) {
+                            instance.hide({
+                                transitionOut: 'fadeOutUp',
+                                onClosing: function (instance, toast, closedBy) {
+                                }
+                            }, toast, 'buttonName');
+                        }]
+                    ],
+                });
+            }).fail((error) => {
+                alert('Disculpe, hay un problema');
+            });
+            this.filterData(this.img, userId, this.url, true);
         }
     }
 });

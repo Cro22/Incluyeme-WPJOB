@@ -27,15 +27,27 @@ $css = plugins_url() . '/incluyeme/include/assets/css/';
 wp_register_script('bootstrapJs', $js . 'bootstrap.min.js', ['jquery'], '1.0.0');
 wp_register_script('vueJS', $js . 'vueDEV.js', ['bootstrapJs'], '1.0.0');
 wp_register_script('vueD', $js . 'vueD.js', ['vueJS'], '2.0.0');
+wp_register_script('bootstrap-notify', $js . 'iziToast.js', ['bootstrapJs'], '2.0.0');
 wp_register_style('bootstrap-css', $css . 'bootstrap.min.css', [], '1.0.0', false);
+wp_register_style('bootstrap-notify-css', $css . 'iziToast.min.css', [], '1.0.0', false);
 wp_enqueue_script('bootstrapJs');
 wp_enqueue_script('vueJS');
+wp_enqueue_script('bootstrap-notify');
 wp_enqueue_script('vueD');
 wp_enqueue_style('bootstrap-css');
+wp_enqueue_style('bootstrap-notify-css');
 $baseurl = wp_upload_dir();
 $baseurl = $baseurl['baseurl'];
 ?>
 <script>
+    var incluyemeContent = document.getElementById("content");
+    incluyemeContent.classList.add("col-9");
+    var incluyemeSidebar = document.getElementById("sidebar");
+    incluyemeSidebar.classList.add("col");
+    incluyemeSidebar.classList.add("ml-5");
+    var incluyemeTitle = document.getElementsByClassName("container  right-sidebar  no-vc  right-sidebar  has-title no-vc");
+    incluyemeTitle[0].className += " row";
+
     var xFoo = document.createElement('x-incluyeme');
     document.body.appendChild(xFoo);
 </script>
@@ -264,7 +276,6 @@ $baseurl = $baseurl['baseurl'];
 				<x-incluyeme class="row">
 					<x-incluyeme class="col-4">
 						<div class="container text-center">
-							
 							<img :src="data.img ||img"
 							     class="rounded-circle"
 							     style="max-width: 5rem; max-height: 5rem;"
@@ -283,7 +294,7 @@ $baseurl = $baseurl['baseurl'];
 						<x-incluyeme class="row">
 							<x-incluyeme class="col-12">
 										<span class="wpjb-manage-header-left wpjb-line-major wpjb-manage-title">
-											<a v-bind:href="data.guid" :style="{ cursor: 'pointer'}"
+											<a :style="{ cursor: 'pointer'}"
 											   v-on:click='openPDF(data.guid)'>
 												{{data.last_name ? data.last_name+',' : ''}} {{data.first_name}}
 											</a>
@@ -336,14 +347,19 @@ $baseurl = $baseurl['baseurl'];
 											</x-incluyeme>
 										</x-incluyeme>
 									</x-incluyeme>
-									<x-incluyeme class="col m-2">
-										<x-incluyeme class="card" :style="{border: data.color}">
-											<x-incluyeme class="card-body card-body text-center pt-1 pr-3 pl-3 pb-1">
-												<span>
-											{{data.read}}
-												</span>
-											</x-incluyeme>
-										</x-incluyeme>
+									<x-incluyeme class="col m-1">
+										<label>
+											<select v-model="data.applicant_status"
+											        v-on:change="onChange(<?php echo esc_html(get_current_user_id() . ','); ?>data.applicant_status, data.users_id)"
+											        :style="{border: data.color}">
+												<!--  objeto literal en linea --> -->
+												<option v-bind:value="3">#Leido</option>
+												<option v-bind:value="1">#Nuevo</option>
+												<option v-bind:value="4">#Preseleccionado</option>
+												<option v-bind:value="2">#Seleccionado</option>
+												<option v-bind:value="0">#Desestimado</option>
+											</select>
+										</label>
 									</x-incluyeme>
 								</x-incluyeme>
 							</x-incluyeme>
@@ -351,6 +367,7 @@ $baseurl = $baseurl['baseurl'];
 					</x-incluyeme>
 				</x-incluyeme>
 			</x-incluyeme>
+	
 	</div>
 	<?php if (!empty($apps->application)): ?>
 		<div class="wpjb-paginate-links" v-if="message===false">
@@ -385,7 +402,9 @@ $baseurl = $baseurl['baseurl'];
 												</label>
 												<select class="form-control w-100" id="job" v-model="jobs">
 													<option disabled
-													        selected><?php _e("Seleccioanr Aviso.", "wpjobboard"); ?></option>
+													        selected><?php _e("Seleccionar Aviso.", "wpjobboard"); ?></option>
+													<option value="0"
+													        selected><?php _e("Buscar en todos los avisos.", "wpjobboard"); ?></option>
 													<?php foreach ($jobsList as $job): ?>
 														<option value="<?php echo esc_html($job->id) ?>" <?php selected($job->id, $job_id) ?>><?php echo esc_html($job->job_title) ?></option>
 													<?php endforeach; ?>

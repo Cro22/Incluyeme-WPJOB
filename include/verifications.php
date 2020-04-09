@@ -5,6 +5,9 @@ $result = [];
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['id']) && !empty($_POST['id'])) {
 	$data = new WP_Incluyeme();
 	$data::setUserId($_POST['id']);
+	if (isset($_POST['read']) && $_POST['read'] === 'true') {
+		$data::changeStatus($_POST['resume'], $_POST['statusChange'], $_POST['jobs'] ? $_POST['jobs'] : false);
+	}
 	
 	if (!empty($_POST['val']) && !empty($_POST['resume']) && !empty($_POST['changes'])) {
 		$data::changeFavPub($_POST['val'], $_POST['resume']);
