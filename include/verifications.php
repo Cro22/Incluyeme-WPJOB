@@ -7,10 +7,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['id']) && !empty($_POST
 	$data::setUserId($_POST['id']);
 	if (isset($_POST['read']) && $_POST['read'] === 'true') {
 		$data::changeStatus($_POST['resume'], $_POST['statusChange'], $_POST['jobs'] ? $_POST['jobs'] : false);
+		echo json_response(200, 'All Ok');
+		return;
 	}
 	
 	if (!empty($_POST['val']) && !empty($_POST['resume']) && !empty($_POST['changes'])) {
 		$data::changeFavPub($_POST['val'], $_POST['resume']);
+		echo json_response(200, 'All Ok');
+		return;
 	}
 	if (count($_POST['status']) !== 0 && is_array($_POST['status'])) {
 		$data::setStatus($_POST['status']);

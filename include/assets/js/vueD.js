@@ -37,6 +37,13 @@ let filterApplicants = new Vue({
         selected: 1
     },
     mounted() {
+        var incluyemeContent = document.getElementById("content");
+        incluyemeContent.classList.add("col-9");
+        var incluyemeSidebar = document.getElementById("sidebar");
+        incluyemeSidebar.classList.add("col");
+        incluyemeSidebar.classList.add("ml-5");
+        var incluyemeTitle = document.getElementsByClassName("container  right-sidebar  no-vc  right-sidebar  has-title no-vc");
+        incluyemeTitle[0].className += " row";
         this.observer = new MutationObserver(mutations => {
             for (const m of mutations) {
                 const newValue = m.target.getAttribute(m.attributeName);
