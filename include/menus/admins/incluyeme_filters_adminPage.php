@@ -22,7 +22,7 @@ function incluyeme_filters_adminPage()
 				<div class="row">
 					<div class="col">
 						<form method="POST">
-							<label for="codeIncluyeme"><?php _e("Ingrese el Nombre del campo CV", "wpjobboard"); ?></label>
+							<label for="codeIncluyeme"><?php _e("Ingrese el Nombre del campo Certificado de Discapacidad", "wpjobboard"); ?></label>
 							<input type="text"
 							       class="form-control"
 							       id="codeIncluyeme"
