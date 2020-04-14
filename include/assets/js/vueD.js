@@ -38,12 +38,14 @@ let filterApplicants = new Vue({
     },
     mounted() {
         var incluyemeContent = document.getElementById("content");
-        incluyemeContent.classList.add("col-9");
         var incluyemeSidebar = document.getElementById("sidebar");
-        incluyemeSidebar.classList.add("col");
-        incluyemeSidebar.classList.add("ml-5");
         var incluyemeTitle = document.getElementsByClassName("container  right-sidebar  no-vc  right-sidebar  has-title no-vc");
-        incluyemeTitle[0].className += " row";
+        if (incluyemeContent && incluyemeSidebar && incluyemeTitle) {
+            incluyemeContent.classList.add("col-9");
+            incluyemeSidebar.classList.add("col");
+            incluyemeSidebar.classList.add("ml-5");
+            incluyemeTitle[0].className += " row";
+        }
         this.observer = new MutationObserver(mutations => {
             for (const m of mutations) {
                 const newValue = m.target.getAttribute(m.attributeName);
@@ -202,7 +204,7 @@ let filterApplicants = new Vue({
             }
         },
         changeFav: async function (userId, url, val, resume) {
-            urls = url + '/incluyeme/include/verifications.php';
+            let urls = url + '/incluyeme/include/verifications.php';
 
             let data = {
                 id: userId, val, resume, changes: 25

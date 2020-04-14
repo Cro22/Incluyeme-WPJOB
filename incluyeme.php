@@ -5,7 +5,7 @@
  */
 
 /*
-Plugin Name: Incluyeme
+Plugin Name: Incluyeme - Filtro aplicantes
 Plugin URI: https://github.com/Cro22
 Description: Extension de funciones para el Plugin WPJob Board
 Author: Jesus Nuñez
@@ -17,6 +17,7 @@ Domain Path: /languages
 
 defined('ABSPATH') or exit;
 require_once plugin_dir_path(__FILE__) . 'include/active_incluyeme.php';
+require_once plugin_dir_path(__FILE__) . 'include/menus/incluyeme_filters_menu.php';
 add_action('admin_init', 'incluyeme_requirements');
 
 function plugin_name_i18n()

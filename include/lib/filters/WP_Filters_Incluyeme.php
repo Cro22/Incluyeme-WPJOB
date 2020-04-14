@@ -23,6 +23,7 @@ class WP_Filters_Incluyeme
 	private static $residence;
 	private static $letter;
 	private static $email;
+	private static $incluyemeFilters;
 	
 	function __construct()
 	{
@@ -42,6 +43,7 @@ class WP_Filters_Incluyeme
 		self::$residence = null;
 		self::$letter = null;
 		self::$email = null;
+		self::$incluyemeFilters = 'incluyemeFiltersCV';
 	}
 	
 	/**
@@ -447,7 +449,7 @@ class WP_Filters_Incluyeme
 	public function getCV($obj)
 	{
 		
-		
+		$CVS = get_option(self::$incluyemeFilters) ? get_option(self::$incluyemeFilters) : 'certificado-discapacidad';
 		$path = wp_upload_dir();
 		$basePath = $path['basedir'];
 		$baseDir = $path['baseurl'];
@@ -475,7 +477,7 @@ class WP_Filters_Incluyeme
 					if (count($folder) > 2) {
 						$search = opendir($route . '/image/');
 						while ($file = readdir($search)) {
-							if($file != "." and $file != ".." and $file != "index.php"){
+							if ($file != "." and $file != ".." and $file != "index.php") {
 								$obj[$i]->img = $dir . '/image/' . $file;
 							}
 						}
@@ -485,13 +487,13 @@ class WP_Filters_Incluyeme
 				} else {
 					$obj[$i]->img = false;
 				}
-				if (file_exists($route . '/certificado-discapacidad/')) {
-					$folder = @scandir($route . '/certificado-discapacidad/');
+				if (file_exists($route . '/' . $CVS . '/')) {
+					$folder = @scandir($route . '/' . $CVS . '/');
 					if (count($folder) > 2) {
-						$search = opendir($route . '/certificado-discapacidad/');
+						$search = opendir($route . '/' . $CVS . '/');
 						while ($file = readdir($search)) {
-							if($file != "." and $file != ".." and $file != "index.php"){
-								$obj[$i]->CUD = $dir . '/certificado-discapacidad/' . $file;
+							if ($file != "." and $file != ".." and $file != "index.php") {
+								$obj[$i]->CUD = $dir . '/' . $CVS . '/' . $file;
 							}
 						}
 					} else {
