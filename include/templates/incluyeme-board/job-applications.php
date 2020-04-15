@@ -38,6 +38,7 @@ wp_enqueue_script('bootstrap-notify');
 wp_enqueue_script('vueD');
 wp_enqueue_style('bootstrap-css');
 wp_enqueue_style('bootstrap-notify-css');
+$incluyemeNames = 'incluyemeNamesCV';
 $baseurl = wp_upload_dir();
 $baseurl = $baseurl['baseurl'];
 ?>
@@ -337,7 +338,7 @@ $baseurl = $baseurl['baseurl'];
 											<x-incluyeme class="card-body card-body text-center pt-1 pr-3 pl-3 pb-1">
 												<span>
 											<a v-on:click='openPDF(data.CUD)' :style="{ cursor: 'pointer'}">
-												C.U.D
+												<?php echo get_option($incluyemeNames) ? get_option($incluyemeNames) : 'C.U.D'; ?>
 											</a>
 													</span>
 											</x-incluyeme>

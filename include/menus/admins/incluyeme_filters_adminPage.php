@@ -7,10 +7,16 @@
 function incluyeme_filters_adminPage()
 {
 	$incluyemeFilters = 'incluyemeFiltersCV';
+	$incluyemeNames = 'incluyemeNamesCV';
 	if (isset($_POST['codeIncluyeme'])) {
 		$value = $_POST['codeIncluyeme'];
 		update_option($incluyemeFilters, sanitize_text_field($value));
 		update_option($incluyemeFilters, sanitize_text_field($value));
+	}
+	if (isset($_POST['nameIncluyeme'])) {
+		$value = $_POST['nameIncluyeme'];
+		update_option($incluyemeNames, sanitize_text_field($value));
+		update_option($incluyemeNames, sanitize_text_field($value));
 	}
 	?>
 	<div class="container">
@@ -22,17 +28,31 @@ function incluyeme_filters_adminPage()
 				<div class="row">
 					<div class="col">
 						<form method="POST">
-							<label for="codeIncluyeme"><?php _e("Ingrese el Nombre del campo Certificado de Discapacidad", "wpjobboard"); ?></label>
-							<input type="text"
-							       class="form-control"
-							       id="codeIncluyeme"
-							       name="codeIncluyeme"
-							       value="<?php echo get_option($incluyemeFilters) ? get_option($incluyemeFilters) : ''; ?>"
-							       placeholder="<?php _e("Field Name.", "wpjobboard"); ?>">
-							
-							<span class="mt-2">El nombre del campo lo podra conseguir en la pagina de configuracion para
+							<div class="row">
+								<div class="col-12">
+									<label for="codeIncluyeme"><b><?php _e("Ingrese el nombre del campo Certificado de Discapacidad", "wpjobboard"); ?></b></label>
+									<input type="text"
+									       class="form-control"
+									       id="codeIncluyeme"
+									       name="codeIncluyeme"
+									       value="<?php echo get_option($incluyemeFilters) ? get_option($incluyemeFilters) : ''; ?>"
+									       placeholder="<?php _e("Field Name.", "wpjobboard"); ?>">
+									
+									<span class="mt-2">El nombre del campo lo podra conseguir en la pagina de configuracion para
 					                  los campos personalizados del plugin WPJob Board</span>
-							<div class="text-right">
+								</div>
+								<div class="col-12 mt-2">
+									<label for="nameIncluyeme"><b><?php _e("Ingrese nombre a mostrar para los certificados", "wpjobboard"); ?></b></label>
+									<input type="text"
+									       class="form-control"
+									       id="nameIncluyeme"
+									       name="nameIncluyeme"
+									       value="<?php echo get_option($incluyemeNames) ? get_option($incluyemeNames) : 'C.U.D'; ?>"
+									       placeholder="<?php _e("C.U.D", "wpjobboard"); ?>">
+									<span class="mt-2">El valor que coloque aqui se mostrara en los filtros avanzados</span>
+								</div>
+							</div>
+							<div class="text-right mt-2">
 								<button type="submit"
 								        class="btn btn-info"><?php _e("Guardar", "wpjobboard"); ?></button>
 							</div>
