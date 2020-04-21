@@ -10,7 +10,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['id']) && !empty($_POST
 		echo json_response(200, 'All Ok');
 		return;
 	}
-	
+	if (isset($_POST['favoritos'])) {
+		$data::setFavs(TRUE);
+	}
 	if (!empty($_POST['val']) && !empty($_POST['resume']) && !empty($_POST['changes'])) {
 		$data::changeFavPub($_POST['val'], $_POST['resume']);
 		echo json_response(200, 'All Ok');

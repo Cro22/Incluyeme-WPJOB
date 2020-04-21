@@ -24,6 +24,7 @@ class WP_Filters_Incluyeme
 	private static $letter;
 	private static $email;
 	private static $incluyemeFilters;
+	private static $favs;
 	
 	function __construct()
 	{
@@ -43,7 +44,24 @@ class WP_Filters_Incluyeme
 		self::$residence = null;
 		self::$letter = null;
 		self::$email = null;
+		self::$favs = null;
 		self::$incluyemeFilters = 'incluyemeFiltersCV';
+	}
+	
+	/**
+	 * @return mixed
+	 */
+	public static function getFavs()
+	{
+		return self::$favs;
+	}
+	
+	/**
+	 * @param mixed $favs
+	 */
+	public static function setFavs($favs)
+	{
+		self::$favs = $favs;
 	}
 	
 	/**
@@ -580,5 +598,6 @@ WHERE object_id = ' . $id . '
 			$wpdb->query($query);
 		}
 	}
+	
 }
 

@@ -79,29 +79,7 @@ WHERE
  %prefix%wpjb_company.user_id = %userID% ";
 		
 		$group = '
-  GROUP BY   %prefix%users.user_email,
-  %prefix%users.display_name,
-  %prefix%wpjb_resume.phone,
-  %prefix%wpjb_resume.description,
-  %prefix%wpjb_job.job_title,
-  %prefix%posts.guid,
-  %prefix%usermeta.meta_key,
-applicant_status,
-first_name,
-  %prefix%wpjb_resume.candidate_state,
-  %prefix%wpjb_resume.candidate_location,
-  users_id,
- application_id,
-  %prefix%wpjb_resume.id,
- discap,
-last_name,
- type_discap,
-  contratante,
- puesto,
- WType,
- academia,
- titulo,
- eduType';
+  GROUP BY   %prefix%users.user_email';
 		if ($this->getSearchPhrase() !== null) {
 			$queries = $this->addQueries($query, true);
 		} else {
@@ -112,16 +90,19 @@ last_name,
 		try {
 			if (count($results) !== 0) {
 				$response = $this->getCV($results);
-				for ($i = 0; $i < count($response); $i++) {
-					$rating = $this->getExtraRating($response[$i]->users_id);
-					if (count($rating) > 0) {
-						if ($response[$i]->users_id === $rating[0]->users_id) {
-							$response[$i]->rating = $rating[0]->rating;
-						}
+				foreach ($response as $key => $search) {
+					$rating = $this->getExtraRating($response[$key]->users_id);
+					if ($rating !== false) {
+						$response[$key]->rating = $rating[0]->rating;
 					} else {
-						$response[$i]->rating = false;
+						if (self::getFavs()) {
+							unset($response[$key]);
+						} else {
+							$response[$key]->rating = false;
+						}
 					}
 				}
+				$response = array_values($response);
 				return array_unique($response, SORT_REGULAR);
 			}
 			return $response = [];

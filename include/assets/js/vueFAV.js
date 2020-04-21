@@ -34,6 +34,7 @@ let filterApplicants = new Vue({
         ult: false,
         img: false,
         url: '',
+        favoritos: null,
         selected: 1
     },
     mounted() {
@@ -141,8 +142,12 @@ let filterApplicants = new Vue({
             }
             if (this.education !== null && data.education !== '') {
                 data.education = this.education;
-            }if (this.idioms !== null && data.idioms !== '') {
+            }
+            if (this.idioms !== null && data.idioms !== '') {
                 data.idioms = this.idioms;
+            }
+            if (this.favoritos) {
+                data.favoritos = 1
             }
             let
                 request = await jQuery.ajax({
@@ -254,6 +259,7 @@ let filterApplicants = new Vue({
                 this.desestimado = null;
                 this.preseleccionado = null;
                 this.seleccionado = null;
+                this.favoritos = null;
                 this.status = [];
                 this.selects = [];
             }

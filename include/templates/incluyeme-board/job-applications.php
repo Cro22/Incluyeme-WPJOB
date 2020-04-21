@@ -27,7 +27,7 @@ $css = plugins_url() . '/incluyeme/include/assets/css/';
 wp_register_script('popper', 'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js', ['jquery'], '1.0.0');
 wp_register_script('bootstrapJs', $js . 'bootstrap.min.js', ['jquery', 'popper'], '1.0.0');
 wp_register_script('vueJS', $js . 'vueDEV.js', ['bootstrapJs'], '1.0.0');
-wp_register_script('vueD', $js . 'vueD.js', ['vueJS'], '2.0.0');
+wp_register_script('vueD', $js . 'vueFAV.js', ['vueJS'], '2.0.0');
 wp_register_script('bootstrap-notify', $js . 'iziToast.js', ['bootstrapJs'], '2.0.0');
 wp_register_style('bootstrap-css', $css . 'bootstrap.min.css', [], '1.0.0', false);
 wp_register_style('bootstrap-notify-css', $css . 'iziToast.min.css', [], '1.0.0', false);
@@ -358,6 +358,7 @@ $baseurl = $baseurl['baseurl'];
 											</select>
 										</label>
 									</x-incluyeme>
+								
 								</x-incluyeme>
 							</x-incluyeme>
 						</x-incluyeme>
@@ -625,6 +626,13 @@ $baseurl = $baseurl['baseurl'];
 											<label class="form-check-label"
 											       for="inlineCheckbox4"
 											       style="color: red"><?php _e("#Desestimado", "wpjobboard"); ?></label>
+										</div>
+										<div class="form-check form-check-inline">
+											<input class="form-check-input" type="checkbox" id="inlineCheckbox5"
+											       value="Favoritos" v-model="favoritos">
+											<label class="form-check-label"
+											       for="inlineCheckbox5"
+											       style="color: #002fff"><?php _e("#Favoritos", "wpjobboard"); ?></label>
 										</div>
 									</div>
 								</div>
