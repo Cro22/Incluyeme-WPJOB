@@ -21,6 +21,7 @@ let filterApplicants = new Vue({
         desestimado: false,
         preseleccionado: false,
         seleccionado: false,
+        nuevoU: false,
         motriz: false,
         auditive: false,
         visual: false,
@@ -89,6 +90,7 @@ let filterApplicants = new Vue({
             statuses(this.preseleccionado, 4);
             statuses(this.seleccionado, 2);
             statuses(this.desestimado, 0);
+            statuses(this.nuevoU, 1);
             select(this.visceral, 'Visceral');
             select(this.visual, 'Visual');
             select(this.auditive, 'Auditiva');

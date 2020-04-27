@@ -27,7 +27,7 @@ $css = plugins_url() . '/incluyeme/include/assets/css/';
 wp_register_script('popper', 'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js', ['jquery'], '1.0.0');
 wp_register_script('bootstrapJs', $js . 'bootstrap.min.js', ['jquery', 'popper'], '1.0.0');
 wp_register_script('vueJS', $js . 'vueDEV.js', ['bootstrapJs'], '1.0.0');
-wp_register_script('vueD', $js . 'vueFAV.js', ['vueJS'], '2.0.0');
+wp_register_script('vueD', $js . 'vuewNews.js', ['vueJS'], '2.0.0');
 wp_register_script('bootstrap-notify', $js . 'iziToast.js', ['bootstrapJs'], '2.0.0');
 wp_register_style('bootstrap-css', $css . 'bootstrap.min.css', [], '1.0.0', false);
 wp_register_style('bootstrap-notify-css', $css . 'iziToast.min.css', [], '1.0.0', false);
@@ -599,6 +599,13 @@ $baseurl = $baseurl['baseurl'];
 											       for="inlineCheckbox1"><?php _e("Etiquetas:", "wpjobboard"); ?></label>
 										</div>
 										<div class="form-check form-check-inline">
+											<input class="form-check-input" type="checkbox" id="inlineCheckbox88"
+											       value="Nuevo" v-model="Nuevo">
+											<label class="form-check-label"
+											       for="inlineCheckbox88"
+											       style="color: blue"><?php _e("#Nuevo", "wpjobboard"); ?></label>
+										</div>
+										<div class="form-check form-check-inline">
 											<input class="form-check-input" type="checkbox" id="inlineCheckbox1"
 											       value="Leído" v-model="leido">
 											<label class="form-check-label"
@@ -632,7 +639,7 @@ $baseurl = $baseurl['baseurl'];
 											       value="Favoritos" v-model="favoritos">
 											<label class="form-check-label"
 											       for="inlineCheckbox5"
-											       style="color: #002fff"><?php _e("#Favoritos", "wpjobboard"); ?></label>
+											       style="color: #00796a"><?php _e("#Favoritos", "wpjobboard"); ?></label>
 										</div>
 									</div>
 								</div>
