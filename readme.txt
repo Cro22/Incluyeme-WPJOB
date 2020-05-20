@@ -1,7 +1,7 @@
 === Ryspayhn-Gateways ===
 Contributors: cro22
 Tags: Incluyeme
-Requires at least: 5..0.0
+Requires at least: 5.0.0
 Requires PHP: 5.2
 Tested up to: 5.3.2
 Stable tag: 1.5.1
