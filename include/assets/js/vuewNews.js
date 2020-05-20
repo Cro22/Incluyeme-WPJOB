@@ -1,3 +1,4 @@
+            if (this.favoritos) {
 Vue.config.ignoredElements = ['x-incluyeme']
 let filterApplicants = new Vue({
     el: '#incluyeme-wpjb',
