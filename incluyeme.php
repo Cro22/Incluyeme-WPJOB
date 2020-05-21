@@ -51,7 +51,7 @@ function incluyeme_notice()
 
 require 'plugin-update-checker/plugin-update-checker.php';
 $myUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
-	'https://github.com/Incluyeme-com/filtro-aplicantes.git',
+	'https://github.com/Incluyeme-com/filtro-aplicantes',
 	__FILE__,
 	'incluyeme-filters-applicants'
 );
