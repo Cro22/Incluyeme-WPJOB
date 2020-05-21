@@ -9,7 +9,7 @@ Plugin Name: Incluyeme - Filtro aplicantes
 Plugin URI: https://github.com/Cro22
 Description: Extension de funciones para el Plugin WPJob Board
 Author: Jesus Nuñez
-Version: 1.5.4
+Version: 1.5.5
 Author URI: https://github.com/Cro22
 Text Domain: incluyeme
 Domain Path: /languages
@@ -57,7 +57,7 @@ $myUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
 );
 
 
-$myUpdateChecker->setAuthentication('ba79641f780d5287e631b506fdd7f4a471873ce5');
+$myUpdateChecker->setAuthentication('15fabc448fb5f89c01ac00c3f8fd04ac15c11858');
 
 
 $myUpdateChecker->setBranch('master');
