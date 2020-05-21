@@ -57,7 +57,7 @@ $myUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
 );
 
 
-$myUpdateChecker->setAuthentication('15fabc448fb5f89c01ac00c3f8fd04ac15c11858');
+$myUpdateChecker->setAuthentication('8a9c08f1cd85ee5d035b643338ef826cc254923b');
 
 
 $myUpdateChecker->setBranch('master');
