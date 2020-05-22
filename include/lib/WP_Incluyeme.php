@@ -73,13 +73,14 @@ FROM %prefix%wpjb_resume
     ON %prefix%wpjb_resume.id = %prefix%wpjb_resume_detail.resume_id
   AND 1 = %prefix%wpjb_resume_detail.type
   LEFT OUTER JOIN %prefix%wpjb_resume_detail edu
-    ON %prefix%wpjb_resume.id = edu.resume_id
-    AND 2 = edu.type
-        LEFT OUTER JOIN %prefix%incluyeme_users_idioms
-    ON %prefix%wpjb_resume.id = %prefix%incluyeme_users_idioms.resume_id
-WHERE
- %prefix%wpjb_company.user_id = %userID% ";
-		
+    ON %prefix%wpjb_resume.id = edu.resume_id AND 2 = edu.type ";
+		if (self::checkLogin() > 0) {
+			$query .= "
+        LEFT OUTER JOIN %prefix%incluyeme_users_idioms ON %prefix%wpjb_resume.id = %prefix%incluyeme_users_idioms.resume_id
+        WHERE %prefix%wpjb_company.user_id = %userID% ";
+		} else {
+			$query .= " WHERE %prefix%wpjb_company.user_id = %userID% ";
+		}
 		$group = '
   GROUP BY   %prefix%users.user_email';
 		if ($this->getSearchPhrase() !== null) {
@@ -88,7 +89,6 @@ WHERE
 			$queries = $this->addQueries($query);
 		}
 		$queries = $queries . $group;
-		error_log(print_r($this->changePrefix($queries), true));
 		$results = $this->executeQueries($this->changePrefix($queries));
 		try {
 			if (count($results) !== 0) {

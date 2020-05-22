@@ -27,6 +27,7 @@ class WP_Filters_Incluyeme
 	private static $incluyemeFilters;
 	private static $favs;
 	private static $newIdioms;
+	private static $checkLoginV;
 	
 	function __construct()
 	{
@@ -48,6 +49,7 @@ class WP_Filters_Incluyeme
 		self::$letter = null;
 		self::$email = null;
 		self::$newIdioms = null;
+		self::$checkLoginV = 0;
 		self::$favs = null;
 		self::$incluyemeFilters = 'incluyemeFiltersCV';
 	}
@@ -446,18 +448,19 @@ class WP_Filters_Incluyeme
 			if (self::getOral() === null && self::getEscrito() === null) {
 				$sql .= 'AND idioms.name = "' . self::getIdioms() . '" ';
 				$sql .= 'AND idiomsV.value != "No hablo" ';
-			} else {
-				if (self::getnewIdioms() !== null) {
-					$sql .= 'AND  %prefix%incluyeme_users_idioms.idioms_id = "' . self::getnewIdioms() . '" ';
-				}
 			}
 			
 		}
-		if (self::getOral() !== null) {
-			$sql .= ' AND %prefix%incluyeme_users_idioms.olevel = "' . self::getOral() . '" ';
-		}
-		if (self::getEscrito() !== null) {
-			$sql .= ' AND %prefix%incluyeme_users_idioms.wlevel =  "' . self::getEscrito() . '" ';
+		if (self::$checkLoginV > 0) {
+			if (self::getnewIdioms() !== null) {
+				$sql .= 'AND  %prefix%incluyeme_users_idioms.idioms_id = "' . self::getnewIdioms() . '" ';
+			}
+			if (self::getOral() !== null) {
+				$sql .= ' AND %prefix%incluyeme_users_idioms.olevel = "' . self::getOral() . '" ';
+			}
+			if (self::getEscrito() !== null) {
+				$sql .= ' AND %prefix%incluyeme_users_idioms.wlevel =  "' . self::getEscrito() . '" ';
+			}
 		}
 		if (self::getDisability() !== null) {
 			$sql .= 'AND lValue.value in ( %disability% ) ';
@@ -647,6 +650,16 @@ WHERE object_id = ' . $id . '
 			$query = self::changePrefix($query);
 			$wpdb->query($query);
 		}
+	}
+	
+	protected static function checkLogin()
+	{
+		global $wpdb;
+		$query = $wpdb->prepare("SELECT COUNT(1) as checkI FROM information_schema.tables WHERE table_schema=%s AND table_name=%s", [$wpdb->dbname, $wpdb->prefix . 'incluyeme_users_idioms']);
+		
+		$check = $wpdb->get_results($query)[0]->checkI;
+		self::$checkLoginV = $check;
+		return $check;
 	}
 	
 }
