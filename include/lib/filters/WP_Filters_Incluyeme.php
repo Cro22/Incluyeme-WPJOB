@@ -49,7 +49,7 @@ class WP_Filters_Incluyeme
 		self::$letter = null;
 		self::$email = null;
 		self::$newIdioms = null;
-		self::$checkLoginV = 0;
+		self::$checkLoginV = false;
 		self::$favs = null;
 		self::$incluyemeFilters = 'incluyemeFiltersCV';
 	}
@@ -360,12 +360,7 @@ class WP_Filters_Incluyeme
 	
 	protected static function changePrefix($query, $changeData = false, $value = false)
 	{
-		global $wpdb;
-		
-		$change = [
-			'%prefix%' => $wpdb->prefix,
-			'%userID%' => self::getUserId()
-		];
+		$change = [];
 		if ($changeData && is_string($changeData)) {
 			$change[$changeData] = $value;
 		}
@@ -397,85 +392,90 @@ class WP_Filters_Incluyeme
 	
 	public static function addQueries($sql, $phrase = false)
 	{
+		global $wpdb;
+		$prefix = $wpdb->prefix;
 		if (self::getJob() !== null) {
-			$sql .= 'AND %prefix%wpjb_job.id = ' . self::getJob() . ' ';
+			$sql .= "AND " . $prefix . "wpjb_job.id = " . self::getJob() . " ";
 		}
 		if (self::getName() !== null) {
-			$sql .= 'AND %prefix%usermeta.meta_value Like "%' . self::getName() . '%" ';
+			$sql .= ' AND ' . $prefix . 'usermeta.meta_value Like "%' . self::getName() . '%" ';
 		}
 		if (self::getStatus() !== null) {
-			$sql .= 'AND %prefix%wpjb_application.status in ( %statuses% ) ';
+			$sql .= ' AND ' . $prefix . 'wpjb_application.status in ( %statuses% ) ';
 			$sql = self::changePrefix($sql, '%statuses%', implode(',', self::getStatus()));
 		}
 		if (self::getResidence() !== null) {
-			$sql .= 'AND %prefix%wpjb_resume.candidate_state Like "%' . self::getResidence() . '%" ';
+			$sql .= ' AND ' . $prefix . 'wpjb_resume.candidate_state Like "%' . self::getResidence() . '%" ';
 		}
 		if (self::getCity() !== null) {
-			$sql .= 'AND %prefix%wpjb_resume.candidate_location Like "%' . self::getCity() . '%" ';
+			$sql .= ' AND ' . $prefix . 'wpjb_resume.candidate_location Like "%' . self::getCity() . '%" ';
 		}
 		if (self::getName() !== null) {
-			$sql .= 'AND %prefix%usermeta.meta_value Like "%' . self::getName() . '%" ';
+			$sql .= ' AND ' . $prefix . 'usermeta.meta_value Like "%' . self::getName() . '%" ';
 		}
 		if (self::getEmail() !== null) {
-			$sql .= 'AND %prefix%users.user_email = "' . self::getEmail() . '" ';
+			$sql .= ' AND ' . $prefix . 'users.user_email = "' . self::getEmail() . '" ';
 		}
 		if (self::getSearchPhrase() !== null && $phrase) {
-			$sql .= 'AND ( %prefix%usermeta.meta_value Like  "%' . self::getSearchPhrase() . '%" ';
-			$sql .= 'OR %prefix%wpjb_application.status Like "%' . self::getSearchPhrase() . '%" ';
-			$sql .= 'OR %prefix%wpjb_resume.candidate_state Like "%' . self::getSearchPhrase() . '%" ';
-			$sql .= 'OR %prefix%wpjb_resume.candidate_location Like "%' . self::getSearchPhrase() . '%" ';
-			$sql .= 'OR %prefix%usermeta.meta_value  Like "%' . self::getSearchPhrase() . '%" ';
-			$sql .= 'OR  edu.grantor  Like "%' . self::getSearchPhrase() . '%" ';
-			$sql .= 'OR edu.detail_title  Like "%' . self::getSearchPhrase() . '%" ';
-			$sql .= 'OR %prefix%wpjb_resume_detail.detail_title  Like "%' . self::getSearchPhrase() . '%" ';
-			$sql .= 'OR %prefix%wpjb_resume_detail.detail_description  Like "%' . self::getSearchPhrase() . '%" ';
-			$sql .= 'OR %prefix%users.user_email Like "%' . self::getSearchPhrase() . '%" ) ';
+			$sql .= ' AND ( ' . $prefix . 'usermeta.meta_value Like  "%' . self::getSearchPhrase() . '%" ';
+			$sql .= ' OR ' . $prefix . 'wpjb_application.status Like "%' . self::getSearchPhrase() . '%" ';
+			$sql .= ' OR ' . $prefix . 'wpjb_resume.candidate_state Like "%' . self::getSearchPhrase() . '%" ';
+			$sql .= ' OR ' . $prefix . 'wpjb_resume.candidate_location Like "%' . self::getSearchPhrase() . '%" ';
+			$sql .= ' OR ' . $prefix . 'usermeta.meta_value  Like "%' . self::getSearchPhrase() . '%" ';
+			$sql .= ' OR  edu.grantor  Like "%' . self::getSearchPhrase() . '%" ';
+			$sql .= ' OR edu.detail_title  Like "%' . self::getSearchPhrase() . '%" ';
+			$sql .= ' OR ' . $prefix . 'wpjb_resume_detail.detail_title  Like "%' . self::getSearchPhrase() . '%" ';
+			$sql .= ' OR ' . $prefix . 'wpjb_resume_detail.detail_description  Like "%' . self::getSearchPhrase() . '%" ';
+			$sql .= ' OR ' . $prefix . 'users.user_email Like "%' . self::getSearchPhrase() . '%" ) ';
 		}
 		if (self::getLastName() !== null) {
-			$sql .= 'AND lVal.meta_value Like "%' . self::getLastName() . '%" ';
+			$sql .= ' AND lVal.meta_value Like "%' . self::getLastName() . '%" ';
 		}
 		if (self::getCourse() !== null) {
-			$sql .= 'AND edu.detail_title Like "%' . self::getCourse() . '%" ';
+			$sql .= ' AND edu.detail_title Like "%' . self::getCourse() . '%" ';
 		}
 		if (self::getEducation() !== null) {
-			$sql .= 'AND edu.grantor Like "%' . self::getEducation() . '%" ';
+			$sql .= ' AND edu.grantor Like "%' . self::getEducation() . '%" ';
 		}
 		if (self::getDescription() !== null) {
-			$sql .= 'AND  edu.detail_description Like "%' . self::getDescription() . '%" ';
+			$sql .= ' AND  edu.detail_description Like "%' . self::getDescription() . '%" ';
 		}
 		if (self::getIdioms() !== null) {
 			
 			if (self::getOral() === null && self::getEscrito() === null) {
-				$sql .= 'AND idioms.name = "' . self::getIdioms() . '" ';
-				$sql .= 'AND idiomsV.value != "No hablo" ';
+				$sql .= ' AND idioms.name = "' . self::getIdioms() . '" ';
+				$sql .= ' AND idiomsV.value != "No hablo" ';
 			}
 			
 		}
-		if (self::$checkLoginV > 0) {
+		if (self::$checkLoginV) {
 			if (self::getnewIdioms() !== null) {
-				$sql .= 'AND  %prefix%incluyeme_users_idioms.idioms_id = "' . self::getnewIdioms() . '" ';
+				$sql .= ' AND  ' . $prefix . 'incluyeme_users_idioms.idioms_id = "' . self::getnewIdioms() . '" ';
 			}
 			if (self::getOral() !== null) {
-				$sql .= ' AND %prefix%incluyeme_users_idioms.olevel = "' . self::getOral() . '" ';
+				$sql .= ' AND ' . $prefix . 'incluyeme_users_idioms.olevel = "' . self::getOral() . '" ';
 			}
 			if (self::getEscrito() !== null) {
-				$sql .= ' AND %prefix%incluyeme_users_idioms.wlevel =  "' . self::getEscrito() . '" ';
+				$sql .= ' AND ' . $prefix . 'incluyeme_users_idioms.wlevel =  "' . self::getEscrito() . '" ';
 			}
 		}
 		if (self::getDisability() !== null) {
-			$sql .= 'AND lValue.value in ( %disability% ) ';
+			$sql .= ' AND lValue.value in ( %disability% ) ';
 			$sql = self::changePrefix($sql, '%disability%', '"' . implode('","', self::getDisability()) . '"');
 		}
+		
 		return $sql;
 	}
 	
 	public static function addQueriesSecondSQL($sql, $phrase = false)
 	{
+		global $wpdb;
+		$prefix = $wpdb->prefix;
 		if (self::getLastName() !== null) {
-			$sql .= 'AND %prefix%usermeta.meta_value Like "%' . self::getLastName() . '%" ';
+			$sql .= ' AND ' . $prefix . 'usermeta.meta_value Like "%' . self::getLastName() . '%" ';
 		}
 		if (self::getDisability() !== null) {
-			$sql .= 'AND %prefix%wpjb_meta_value.value in ( %disability% ) ';
+			$sql .= ' AND ' . $prefix . 'wpjb_meta_value.value in ( %disability% ) ';
 			$sql = self::changePrefix($sql, '%disability%', '"' . implode(',', self::getDisability()) . '"');
 		}
 		return $sql;
@@ -609,57 +609,52 @@ class WP_Filters_Incluyeme
 	{
 		global $wpdb;
 		$query = false;
+		$prefix = $wpdb->prefix;
 		if ($jobs !== false) {
-			$query = 'UPDATE %prefix%wpjb_application
-SET status = ' . $status . '
-WHERE user_id = ' . $id . '
-AND job_id = ' . $jobs;
+			$query = "UPDATE " . $prefix . "wpjb_application
+SET status = " . $status . "
+WHERE user_id = " . $id . "
+AND job_id = " . $jobs;
 		} else {
-			$query = 'UPDATE  %prefix%wpjb_application
-SET status = ' . $status . '
-WHERE user_id = ' . $id . '
+			$query = "UPDATE  " . $prefix . "wpjb_application
+SET status = " . $status . "
+WHERE user_id = " . $id . "
 AND job_id IN (SELECT
-     %prefix%wpjb_job.id
-  FROM  %prefix%wpjb_job
-  LEFT JOIN %prefix%wpjb_company
-    ON %prefix%wpjb_job.employer_id = %prefix%wpjb_company.id
-WHERE %prefix%wpjb_company.user_id =' . self::getUserId() . ')';
+     " . $prefix . "wpjb_job.id
+  FROM  " . $prefix . "wpjb_job
+  LEFT JOIN " . $prefix . "wpjb_company
+    ON " . $prefix . "wpjb_job.employer_id = " . $prefix . "wpjb_company.id
+WHERE " . $prefix . "wpjb_company.user_id =" . self::getUserId() . ")";
 		}
 		if ($query) {
-			$query = self::changePrefix($query);
 			$wpdb->query($query);
 		}
+		return;
 	}
 	
 	public static function changeFavPub($exist = false, $id = false)
 	{
 		global $wpdb;
+		$prefix = $wpdb->prefix;
 		if ($exist == 1 && $id !== false) {
-			$query = 'DELETE
-  FROM %prefix%wpjb_meta_value
-WHERE object_id = ' . $id . '
-  AND meta_id = (SELECT
-      %prefix%wpjb_meta.id
-    FROM %prefix%wpjb_meta
-    WHERE %prefix%wpjb_meta.name = \'rating\')';
+			$query = "DELETE
+  FROM " . $prefix . "wpjb_meta_value
+WHERE object_id = " . $id . "
+  AND meta_id = (SELECT " . $prefix . "wpjb_meta.id FROM " . $prefix . "wpjb_meta WHERE " . $prefix . "wpjb_meta.name = 'rating')";
 			$query = self::changePrefix($query);
 			$wpdb->query($query);
 		} else {
-			$query = 'INSERT INTO wp_wpjb_meta_value (meta_id, object_id, value)
-  VALUES ((SELECT wp_wpjb_meta.id FROM wp_wpjb_meta WHERE wp_wpjb_meta.name = \'rating\'), (' . $id . '), 5)';
-			$query = self::changePrefix($query);
+			$query = "INSERT INTO " . $prefix . "wpjb_meta_value (meta_id, object_id, value)
+  VALUES ((SELECT " . $prefix . "wpjb_meta.id FROM " . $prefix . "wpjb_meta WHERE " . $prefix . "wpjb_meta.name = 'rating'), (" . $id . "), 5)";
 			$wpdb->query($query);
 		}
 	}
 	
 	protected static function checkLogin()
 	{
-		global $wpdb;
-		$query = $wpdb->prepare("SELECT COUNT(1) as checkI FROM information_schema.tables WHERE table_schema=%s AND table_name=%s", [$wpdb->dbname, $wpdb->prefix . 'incluyeme_users_idioms']);
-		
-		$check = $wpdb->get_results($query)[0]->checkI;
-		self::$checkLoginV = $check;
-		return $check;
+		include_once(ABSPATH.'wp-admin/includes/plugin.php');
+		self::$checkLoginV = is_plugin_active('inclueyeme-login-extension/inclueyeme-login-extension.php');
+		return self::$checkLoginV;
 	}
 	
 }

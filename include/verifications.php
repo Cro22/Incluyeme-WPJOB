@@ -5,6 +5,15 @@ $result = [];
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['id']) && !empty($_POST['id'])) {
 	$data = new WP_Incluyeme();
 	$data::setUserId($_POST['id']);
+	if (count($_POST) == 1) {
+		try {
+			$result = $data->searchModifiedIncluyeme(true);
+			echo json_response(200, $result);
+		} catch (Exception $e) {
+			echo json_response(500, 'Ha ocurrido un error');
+		}
+		return;
+	}
 	if (isset($_POST['read']) && $_POST['read'] === 'true') {
 		$data::changeStatus($_POST['resume'], $_POST['statusChange'], $_POST['jobs'] ? $_POST['jobs'] : false);
 		echo json_response(200, 'All Ok');
