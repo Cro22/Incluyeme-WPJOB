@@ -675,8 +675,7 @@ $baseurl = $baseurl['baseurl'];
 </script>
 <style>
 	span.wpjb-glyphs.wpjb-star-rating.personal:before {
-		font-size: 2.2rem !important;
-		padding-top: 1rem;
+		font-size: 1.5rem !important;
 	}
 	
 	span.wpjb-star-checked:before {
