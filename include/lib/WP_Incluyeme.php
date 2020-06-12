@@ -40,7 +40,7 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
 FROM " . $prefix . "wpjb_resume
   INNER JOIN " . $prefix . "users
     ON " . $prefix . "users.ID = " . $prefix . "wpjb_resume.user_id
-  INNER JOIN " . $prefix . "wpjb_resume_search
+  LEFT JOIN " . $prefix . "wpjb_resume_search
     ON " . $prefix . "wpjb_resume.id = " . $prefix . "wpjb_resume_search.resume_id
   INNER JOIN " . $prefix . "wpjb_application
     ON " . $prefix . "wpjb_resume.user_id = " . $prefix . "wpjb_application.user_id
@@ -68,7 +68,7 @@ FROM " . $prefix . "wpjb_resume
   LEFT OUTER JOIN " . $prefix . "usermeta lVal
     ON " . $prefix . "users.ID = lVal.user_id
   AND lVal.meta_key = 'last_name'
-  INNER  JOIN " . $prefix . "wpjb_meta meta
+   LEFT OUTER  JOIN " . $prefix . "wpjb_meta meta
     ON lValue.meta_id = meta.id
   AND meta.name = 'tipo_discapacidad'
   LEFT OUTER JOIN " . $prefix . "wpjb_resume_detail
@@ -85,6 +85,7 @@ FROM " . $prefix . "wpjb_resume
 		}
 		$group = "
   GROUP BY   " . $prefix . "users.user_email";
+		error_log(print_r($query, true));
 		if ($this->getSearchPhrase() !== null) {
 			$queries = $this->addQueries($query, true);
 		} else {

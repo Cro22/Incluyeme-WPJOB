@@ -202,7 +202,16 @@ $baseurl = $baseurl['baseurl'];
                             <span class="wpjb-glyphs wpjb-icon-spinner wpjb-animate-spin wpjb-star-rating-loader"
                                   style="vertical-align: top; display:none"></span>
                             <span class="wpjb-star-rating-bar">
-                                <?php for ($i = 0; $i < 5; $i++): ?><span
+	                            
+                                <?php $rated = do_action('incluyeme_rating_function', $application->id);
+                                if (count($rated)) {
+	                                $rated = $rated[0]->value;
+	
+                                } else {
+	                                $rated = 0;
+                                }
+                                error_log(  print_r($rated, true));
+                                for ($i = 0; $i < 5; $i++): ?><span
 	                                class="wpjb-star-rating wpjb-motif wpjb-glyphs wpjb-icon-star-empty <?php if ($rated > $i): ?>wpjb-star-checked<?php endif; ?>"
 	                                data-value="<?php echo $i + 1 ?>" ></span><?php endfor ?>
                             </span>
@@ -269,7 +278,7 @@ $baseurl = $baseurl['baseurl'];
 	</div>
 	<div class="container w-auto m-2" v-else>
 		<x-incluyeme class="card mt-2" v-for="(data, index) of message" v-bind:key="data.application_id">
-			<x-incluyeme class="card-body" v-if="data.discap">
+			<x-incluyeme class="card-body">
 				<x-incluyeme class="row">
 					<x-incluyeme class="col-4">
 						<div class="container text-center">
