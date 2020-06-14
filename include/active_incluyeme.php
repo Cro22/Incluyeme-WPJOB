@@ -31,7 +31,22 @@ function incluyeme_files()
 function incluyeme_rating_function($id){
 	global $wpdb;
 	$prefix = $wpdb->prefix;
-	return $wpdb->get_results("SELECT value FROM " . $prefix . "wpjb_meta_value WHERE object_id = " . $id . " AND meta_id = (SELECT " . $prefix . "wpjb_meta.id FROM " . $prefix . "wpjb_meta WHERE " . $prefix . "wpjb_meta.name = 'rating')");
+	error_log(print_r("SELECT
+  " . $prefix . "wpjb_meta_value.value
+FROM " . $prefix . "wpjb_meta_value
+WHERE " . $prefix . "wpjb_meta_value.object_id = $id
+AND " . $prefix . "wpjb_meta_value.meta_id = (SELECT
+    " . $prefix . "wpjb_meta.id
+  FROM " . $prefix . "wpjb_meta
+  WHERE " . $prefix . "wpjb_meta.name = 'rating')", true));
+	return $wpdb->get_results("SELECT
+  " . $prefix . "wpjb_meta_value.value
+FROM " . $prefix . "wpjb_meta_value
+WHERE " . $prefix . "wpjb_meta_value.object_id = $id
+AND " . $prefix . "wpjb_meta_value.meta_id = (SELECT
+    " . $prefix . "wpjb_meta.id
+  FROM " . $prefix . "wpjb_meta
+  WHERE " . $prefix . "wpjb_meta.name = 'rating')");
 }
 
 add_action ('incluyeme_rating_functions', 'incluyeme_rating_function');

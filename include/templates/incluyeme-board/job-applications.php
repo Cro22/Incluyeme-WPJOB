@@ -203,14 +203,15 @@ $baseurl = $baseurl['baseurl'];
                                   style="vertical-align: top; display:none"></span>
                             <span class="wpjb-star-rating-bar">
 	                            
-                                <?php $rated = do_action('incluyeme_rating_function', $application->id);
-                                if (count($rated)) {
+                                <?php $rated = incluyeme_rating_function($application->id);
+                                error_log(  print_r($application->id, true));
+                                if ($rated) {
 	                                $rated = $rated[0]->value;
 	
                                 } else {
 	                                $rated = 0;
                                 }
-                                error_log(  print_r($rated, true));
+                             
                                 for ($i = 0; $i < 5; $i++): ?><span
 	                                class="wpjb-star-rating wpjb-motif wpjb-glyphs wpjb-icon-star-empty <?php if ($rated > $i): ?>wpjb-star-checked<?php endif; ?>"
 	                                data-value="<?php echo $i + 1 ?>" ></span><?php endfor ?>

@@ -28,9 +28,7 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
   " . $prefix . "users.ID AS users_id,
   " . $prefix . "wpjb_application.id AS application_id,
   " . $prefix . "wpjb_resume.id AS resume_id,
-  lValue.value AS discap,
-  lVal.meta_value AS last_name,
-  meta.name AS type_discap,
+  ".(self::checkLogin()? 'lValue.discap_name AS discap,': 'lValue.value AS discap, meta.name AS type_discap,')."  lVal.meta_value AS last_name,
   " . $prefix . "wpjb_resume_detail.grantor AS contratante,
   " . $prefix . "wpjb_resume_detail.detail_title AS puesto,
   " . $prefix . "wpjb_resume_detail.type AS WType,
@@ -63,29 +61,32 @@ FROM " . $prefix . "wpjb_resume
   AND " . $prefix . "usermeta.meta_key = 'first_name'
   LEFT OUTER JOIN " . $prefix . "wpjb_company
     ON " . $prefix . "wpjb_job.employer_id = " . $prefix . "wpjb_company.id
-  LEFT OUTER JOIN " . $prefix . "wpjb_meta_value lValue
+". (self::checkLogin() ? "    LEFT OUTER JOIN  wp_incluyeme_users_dicapselect wiud
+  ON  wp_wpjb_resume.id = wiud.`resume_id`
+  LEFT OUTER JOIN wp_incluyeme_discapacities lValue
+  ON wiud.discap_id = lValue.id" : " LEFT OUTER JOIN " . $prefix . "wpjb_meta_value lValue
     ON " . $prefix . "wpjb_resume.id = lValue.object_id
+      LEFT OUTER  JOIN wp_wpjb_meta meta
+    ON lValue.meta_id = meta.id")."
   LEFT OUTER JOIN " . $prefix . "usermeta lVal
     ON " . $prefix . "users.ID = lVal.user_id
   AND lVal.meta_key = 'last_name'
-   LEFT OUTER  JOIN " . $prefix . "wpjb_meta meta
-    ON lValue.meta_id = meta.id
-  AND meta.name = 'tipo_discapacidad'
+  ".(self::checkLogin() ?'' :   "AND meta.name = 'tipo_discapacidad'")."
   LEFT OUTER JOIN " . $prefix . "wpjb_resume_detail
     ON " . $prefix . "wpjb_resume.id = " . $prefix . "wpjb_resume_detail.resume_id
   AND 1 = " . $prefix . "wpjb_resume_detail.type
   LEFT OUTER JOIN " . $prefix . "wpjb_resume_detail edu
     ON " . $prefix . "wpjb_resume.id = edu.resume_id AND 2 = edu.type ";
-		if (self::checkLogin() > 0) {
+		if (self::checkLogin()) {
 			$query .= "
         LEFT OUTER JOIN " . $prefix . "incluyeme_users_idioms ON " . $prefix . "wpjb_resume.id = " . $prefix . "incluyeme_users_idioms.resume_id
         WHERE " . $prefix . "wpjb_company.user_id = " . self::getUserId();
 		} else {
 			$query .= " WHERE " . $prefix . "wpjb_company.user_id = " . self::getUserId();
 		}
+
 		$group = "
   GROUP BY   " . $prefix . "users.user_email";
-		error_log(print_r($query, true));
 		if ($this->getSearchPhrase() !== null) {
 			$queries = $this->addQueries($query, true);
 		} else {
@@ -134,7 +135,7 @@ FROM  ' . $prefix . 'wpjb_resume
   LEFT JOIN ' . $prefix . 'wpjb_job
     ON ' . $prefix . 'wpjb_application.job_id = ' . $prefix . 'wpjb_job.id
   LEFT JOIN ' . $prefix . 'wpjb_meta_value
-    ON ' . $prefix . 'wpjb_resume.id = ' . $prefix . 'wpjb_meta_value.object_id
+    ON (' . $prefix . 'wpjb_application.id = ' . $prefix . 'wpjb_meta_value.object_id)
   LEFT JOIN ' . $prefix . 'wpjb_meta
     ON ' . $prefix . 'wpjb_meta_value.meta_id = ' . $prefix . 'wpjb_meta.id
   LEFT JOIN ' . $prefix . 'wpjb_tagged
