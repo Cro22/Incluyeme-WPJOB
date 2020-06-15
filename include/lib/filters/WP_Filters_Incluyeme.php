@@ -658,7 +658,6 @@ WHERE object_id = (SELECT
     INNER JOIN " . $prefix . "wpjb_resume
       ON " . $prefix . "wpjb_application.user_id = " . $prefix . "wpjb_resume.user_id
   WHERE " . $prefix . "wpjb_resume.id = ". $id." LIMIT 1), 5)";
-			error_log(print_r($query, true));
 			$wpdb->query($query);
 		}
 	}

@@ -29,6 +29,8 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
   " . $prefix . "wpjb_application.id AS application_id,
   " . $prefix . "wpjb_resume.id AS resume_id,
   ".(self::checkLogin()? 'lValue.discap_name AS discap,': 'lValue.value AS discap, meta.name AS type_discap,')."  lVal.meta_value AS last_name,
+  cValue.value as valueAll,
+  meta.name AS valueAllTP,
   " . $prefix . "wpjb_resume_detail.grantor AS contratante,
   " . $prefix . "wpjb_resume_detail.detail_title AS puesto,
   " . $prefix . "wpjb_resume_detail.type AS WType,
@@ -68,10 +70,14 @@ FROM " . $prefix . "wpjb_resume
     ON " . $prefix . "wpjb_resume.id = lValue.object_id
       LEFT OUTER  JOIN wp_wpjb_meta meta
     ON lValue.meta_id = meta.id")."
+    "." LEFT OUTER JOIN " . $prefix . "wpjb_meta_value cValue
+    ON " . $prefix . "wpjb_resume.id = cValue.object_id
+      LEFT OUTER  JOIN wp_wpjb_meta meta
+    ON cValue.meta_id = meta.id"."
   LEFT OUTER JOIN " . $prefix . "usermeta lVal
     ON " . $prefix . "users.ID = lVal.user_id
   AND lVal.meta_key = 'last_name'
-  ".(self::checkLogin() ?'' :   "AND meta.name = 'tipo_discapacidad'")."
+  AND meta.name = 'tipo_discapacidad'
   LEFT OUTER JOIN " . $prefix . "wpjb_resume_detail
     ON " . $prefix . "wpjb_resume.id = " . $prefix . "wpjb_resume_detail.resume_id
   AND 1 = " . $prefix . "wpjb_resume_detail.type
@@ -93,6 +99,7 @@ FROM " . $prefix . "wpjb_resume
 			$queries = $this->addQueries($query);
 		}
 		$queries = $queries . $group;
+		error_log(print_r($queries, true));
 		$results = $this->executeQueries($queries);
 		try {
 			if (count($results) !== 0) {
