@@ -326,7 +326,7 @@ $baseurl = $baseurl['baseurl'];
 							</x-incluyeme>
 							<x-incluyeme class="col-12">
 								<p>
-									Discapacidad: {{data.discap}}
+									Discapacidad: {{data.valueAll ? data.valueAll ? data.discap}}
 								</p>
 							</x-incluyeme>
 							<x-incluyeme class="col-12 mt-1">

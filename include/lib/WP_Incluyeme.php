@@ -73,11 +73,11 @@ FROM " . $prefix . "wpjb_resume
     "." LEFT OUTER JOIN " . $prefix . "wpjb_meta_value cValue
     ON " . $prefix . "wpjb_resume.id = cValue.object_id
       LEFT OUTER  JOIN wp_wpjb_meta meta
-    ON cValue.meta_id = meta.id"."
+    ON cValue.meta_id = meta.id
+     AND meta.name = 'tipo_discapacidad'
   LEFT OUTER JOIN " . $prefix . "usermeta lVal
     ON " . $prefix . "users.ID = lVal.user_id
   AND lVal.meta_key = 'last_name'
-  AND meta.name = 'tipo_discapacidad'
   LEFT OUTER JOIN " . $prefix . "wpjb_resume_detail
     ON " . $prefix . "wpjb_resume.id = " . $prefix . "wpjb_resume_detail.resume_id
   AND 1 = " . $prefix . "wpjb_resume_detail.type
