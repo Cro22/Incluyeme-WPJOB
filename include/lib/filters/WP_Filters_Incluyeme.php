@@ -463,6 +463,8 @@ class WP_Filters_Incluyeme
 			$sql .= ' AND lValue.value in ( %disability% ) ';
 			$sql = self::changePrefix($sql, '%disability%', '"' . implode('","', self::getDisability()) . '"');
 		}elseif (self::getDisability() !== null && self::$checkLoginV){
+			$sql .= ' AND  cValue.value  in ( %disability% ) ';
+			$sql = self::changePrefix($sql, '%disability%', '"' . implode('","', self::getDisability()) . '"');
 			$sql .= ' AND lValue.discap_name  in ( %disability% ) ';
 			$sql = self::changePrefix($sql, '%disability%', '"' . implode('","', self::getDisability()) . '"');
 		}
