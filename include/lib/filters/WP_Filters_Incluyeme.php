@@ -27,7 +27,7 @@ class WP_Filters_Incluyeme
 	private static $incluyemeFilters;
 	private static $favs;
 	private static $newIdioms;
-	private static $checkLoginV;
+	protected static $checkLoginV;
 	
 	function __construct()
 	{
@@ -463,9 +463,9 @@ class WP_Filters_Incluyeme
 			$sql .= ' AND lValue.value in ( %disability% ) ';
 			$sql = self::changePrefix($sql, '%disability%', '"' . implode('","', self::getDisability()) . '"');
 		}elseif (self::getDisability() !== null && self::$checkLoginV){
-			$sql .= ' AND  cValue.value  in ( %disability% ) ';
+			$sql .= ' AND (  lValue.value  in ( %disability% ) ';
 			$sql = self::changePrefix($sql, '%disability%', '"' . implode('","', self::getDisability()) . '"');
-			$sql .= ' AND lValue.discap_name  in ( %disability% ) ';
+			$sql .= ' OR nValue.discap_name  in ( %disability% ) )';
 			$sql = self::changePrefix($sql, '%disability%', '"' . implode('","', self::getDisability()) . '"');
 		}
 		return $sql;

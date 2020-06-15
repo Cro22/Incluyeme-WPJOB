@@ -28,19 +28,22 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
   " . $prefix . "users.ID AS users_id,
   " . $prefix . "wpjb_application.id AS application_id,
   " . $prefix . "wpjb_resume.id AS resume_id,
-  ".(self::checkLogin()? 'lValue.discap_name AS discap,': 'lValue.value AS discap, meta.name AS type_discap,')."  lVal.meta_value AS last_name,
-  cValue.value as valueAll,
-  meta.name AS valueAllTP,
+  lValue.value AS discap,
+  lVal.meta_value AS last_name,
+  meta.name AS type_discap,
   " . $prefix . "wpjb_resume_detail.grantor AS contratante,
   " . $prefix . "wpjb_resume_detail.detail_title AS puesto,
   " . $prefix . "wpjb_resume_detail.type AS WType,
   edu.grantor AS academia,
   edu.detail_title AS titulo,
-  edu.type AS eduType
-FROM " . $prefix . "wpjb_resume
+  edu.type AS eduType";
+		if (self::checkLogin()) {
+			$query .= ', nValue.discap_name AS nValueN ';
+		}
+		$query .= " FROM " . $prefix . "wpjb_resume
   INNER JOIN " . $prefix . "users
     ON " . $prefix . "users.ID = " . $prefix . "wpjb_resume.user_id
-  LEFT JOIN " . $prefix . "wpjb_resume_search
+  INNER JOIN " . $prefix . "wpjb_resume_search
     ON " . $prefix . "wpjb_resume.id = " . $prefix . "wpjb_resume_search.resume_id
   INNER JOIN " . $prefix . "wpjb_application
     ON " . $prefix . "wpjb_resume.user_id = " . $prefix . "wpjb_application.user_id
@@ -63,34 +66,29 @@ FROM " . $prefix . "wpjb_resume
   AND " . $prefix . "usermeta.meta_key = 'first_name'
   LEFT OUTER JOIN " . $prefix . "wpjb_company
     ON " . $prefix . "wpjb_job.employer_id = " . $prefix . "wpjb_company.id
-". (self::checkLogin() ? "    LEFT OUTER JOIN  wp_incluyeme_users_dicapselect wiud
-  ON  wp_wpjb_resume.id = wiud.`resume_id`
-  LEFT OUTER JOIN wp_incluyeme_discapacities lValue
-  ON wiud.discap_id = lValue.id" : " LEFT OUTER JOIN " . $prefix . "wpjb_meta_value lValue
+  LEFT OUTER JOIN " . $prefix . "wpjb_meta_value lValue
     ON " . $prefix . "wpjb_resume.id = lValue.object_id
-      LEFT OUTER  JOIN wp_wpjb_meta meta
-    ON lValue.meta_id = meta.id")."
-    "." LEFT OUTER JOIN " . $prefix . "wpjb_meta_value cValue
-    ON " . $prefix . "wpjb_resume.id = cValue.object_id
-      LEFT OUTER  JOIN wp_wpjb_meta meta
-    ON cValue.meta_id = meta.id
-     AND meta.name = 'tipo_discapacidad'
   LEFT OUTER JOIN " . $prefix . "usermeta lVal
     ON " . $prefix . "users.ID = lVal.user_id
   AND lVal.meta_key = 'last_name'
+  LEFT OUTER  JOIN " . $prefix . "wpjb_meta meta
+    ON lValue.meta_id = meta.id
   LEFT OUTER JOIN " . $prefix . "wpjb_resume_detail
     ON " . $prefix . "wpjb_resume.id = " . $prefix . "wpjb_resume_detail.resume_id
   AND 1 = " . $prefix . "wpjb_resume_detail.type
   LEFT OUTER JOIN " . $prefix . "wpjb_resume_detail edu
     ON " . $prefix . "wpjb_resume.id = edu.resume_id AND 2 = edu.type ";
-		if (self::checkLogin()) {
-			$query .= "
-        LEFT OUTER JOIN " . $prefix . "incluyeme_users_idioms ON " . $prefix . "wpjb_resume.id = " . $prefix . "incluyeme_users_idioms.resume_id
-        WHERE " . $prefix . "wpjb_company.user_id = " . self::getUserId();
+		if (self::$checkLoginV) {
+			$query .= "  LEFT JOIN " . $prefix . "incluyeme_users_dicapselect
+    ON " . $prefix . "wpjb_resume.id = " . $prefix . "incluyeme_users_dicapselect.resume_id
+  LEFT JOIN " . $prefix . "incluyeme_discapacities nValue
+    ON " . $prefix . "incluyeme_users_dicapselect.discap_id = nValue.id ";
+			$query .= "  LEFT OUTER JOIN " . $prefix . "incluyeme_users_idioms ON " . $prefix . "wpjb_resume.id = " . $prefix . "incluyeme_users_idioms.resume_id
+        WHERE (meta.name = 'tipo_discapacidad' or  wp_incluyeme_users_dicapselect.resume_id) AND " . $prefix . "wpjb_company.user_id = " . self::getUserId();
+			
 		} else {
 			$query .= " WHERE " . $prefix . "wpjb_company.user_id = " . self::getUserId();
 		}
-
 		$group = "
   GROUP BY   " . $prefix . "users.user_email";
 		if ($this->getSearchPhrase() !== null) {
@@ -99,7 +97,6 @@ FROM " . $prefix . "wpjb_resume
 			$queries = $this->addQueries($query);
 		}
 		$queries = $queries . $group;
-		error_log(print_r($queries, true));
 		$results = $this->executeQueries($queries);
 		try {
 			if (count($results) !== 0) {

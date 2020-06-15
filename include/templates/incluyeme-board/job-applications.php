@@ -204,7 +204,6 @@ $baseurl = $baseurl['baseurl'];
                             <span class="wpjb-star-rating-bar">
 	                            
                                 <?php $rated = incluyeme_rating_function($application->id);
-                                error_log(  print_r($application->id, true));
                                 if ($rated) {
 	                                $rated = $rated[0]->value;
 	
@@ -326,7 +325,7 @@ $baseurl = $baseurl['baseurl'];
 							</x-incluyeme>
 							<x-incluyeme class="col-12">
 								<p>
-									Discapacidad: {{data.valueAll ? data.valueAll ? data.discap}}
+									Discapacidad: {{data.nValueN ? data.nValueN : data.discap}}
 								</p>
 							</x-incluyeme>
 							<x-incluyeme class="col-12 mt-1">
