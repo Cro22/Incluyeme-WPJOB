@@ -643,7 +643,7 @@ WHERE " . $prefix . "wpjb_company.user_id =" . self::getUserId() . ")";
 		if ($exist == 1 && $id !== false) {
 			$query = "DELETE
   FROM " . $prefix . "wpjb_meta_value
-WHERE object_id = (SELECT
+WHERE object_id in (SELECT
     " . $prefix . "wpjb_application.id AS expr1
   FROM " . $prefix . "wpjb_application
     INNER JOIN " . $prefix . "wpjb_resume
@@ -653,14 +653,19 @@ WHERE object_id = (SELECT
 
 			$wpdb->query($query);
 		} else {
-			$query = "INSERT INTO " . $prefix . "wpjb_meta_value (meta_id, object_id, value)
-  VALUES ((SELECT " . $prefix . "wpjb_meta.id FROM " . $prefix . "wpjb_meta WHERE " . $prefix . "wpjb_meta.name = 'rating'), (SELECT
+			$sql = "SELECT
    " . $prefix . "wpjb_application.id AS expr1
   FROM " . $prefix . "wpjb_application
     INNER JOIN " . $prefix . "wpjb_resume
       ON " . $prefix . "wpjb_application.user_id = " . $prefix . "wpjb_resume.user_id
-  WHERE " . $prefix . "wpjb_resume.id = ". $id." LIMIT 1), 5)";
-			$wpdb->query($query);
+  WHERE " . $prefix . "wpjb_resume.id = ". $id;
+  
+			$result = $wpdb->get_results($sql, OBJECT);
+			foreach ($result as $k => $v) {
+				$query = "INSERT INTO " . $prefix . "wpjb_meta_value (meta_id, object_id, value)
+  VALUES ((SELECT " . $prefix . "wpjb_meta.id FROM " . $prefix . "wpjb_meta WHERE " . $prefix . "wpjb_meta.name = 'rating'), ".$v->expr1.", 5)";
+				$wpdb->query($query);
+			}
 		}
 	}
 	
