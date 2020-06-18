@@ -3,7 +3,6 @@
  * Copyright (c) 2020.
  * Jesus Nuñez <Jesus.nunez2050@gmail.com>
  */
-
 function incluyeme_filters_adminPage()
 {
 	$incluyemeFilters = 'incluyemeFiltersCV';
