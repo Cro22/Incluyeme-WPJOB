@@ -395,7 +395,7 @@ class WP_Filters_Incluyeme
 		global $wpdb;
 		$prefix = $wpdb->prefix;
 		if (self::getJob() !== null) {
-			$sql .= "AND " . $prefix . "wpjb_job.id = " . self::getJob() . " ";
+			$sql .= " AND " . $prefix . "wpjb_job.id = " . self::getJob() . " ";
 		}
 		
 		if (self::getFavs() !== null) {
@@ -475,7 +475,6 @@ WHERE  meta_id = (SELECT " . $prefix . "wpjb_meta.id FROM " . $prefix . "wpjb_me
 			$sql .= ' OR nValue.discap_name  in ( %disability% ) )';
 			$sql = self::changePrefix($sql, '%disability%', '"' . implode('","', self::getDisability()) . '"');
 		}
-		error_log(print_r($sql, true));
 		return $sql;
 	}
 	
