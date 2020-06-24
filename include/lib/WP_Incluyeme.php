@@ -87,7 +87,7 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
         WHERE (meta.name = 'tipo_discapacidad' or  wp_incluyeme_users_dicapselect.resume_id) AND " . $prefix . "wpjb_company.user_id = " . self::getUserId();
 			
 		} else {
-			$query .= " WHERE " . $prefix . "wpjb_company.user_id = " . self::getUserId();
+			$query .= " WHERE meta.name = 'tipo_discapacidad' and " . $prefix . "wpjb_company.user_id = " . self::getUserId();
 		}
 		$group = "
   GROUP BY   " . $prefix . "users.user_email";
