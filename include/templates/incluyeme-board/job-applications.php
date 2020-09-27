@@ -558,6 +558,24 @@ $baseurl = $baseurl['baseurl'];
 											</label>
 										</div>
 										<div class="form-group">
+											<div class="form-check form-check-inline">
+												<label class="form-check-label"
+												       for="inlineCheckbox1"><?php _e("Estudios:", "wpjobboard"); ?></label>
+											</div>
+											<div class="form-check form-check-inline">
+												<input class="form-check-input" type="checkbox" id="estudiosCheck1"
+												       value="Nuevo" v-model="estudiosCheck" name="estudiosCheck">
+												<label class="form-check-label"
+												       for="estudiosCheck1"><?php _e("Completados", "wpjobboard"); ?></label>
+											</div>
+											<div class="form-check form-check-inline">
+												<input class="form-check-input" type="checkbox" id="estudiosCheck2"
+												       value="Leído" v-model="estudiosCheckF" name="estudiosCheck">
+												<label class="form-check-label"
+												       for="estudiosCheck2"><?php _e("En Curso", "wpjobboard"); ?></label>
+											</div>
+										</div>
+										<div class="form-group">
 											<label for="idioms"><?php _e("Idiomas.", "wpjobboard"); ?>
 											</label>
 											<select class="form-control w-100" id="idioms" v-model="idioms">

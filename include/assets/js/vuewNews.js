@@ -36,7 +36,9 @@ let filterApplicants = new Vue({
         img: false,
         url: '',
         favoritos: null,
-        selected: 1
+        selected: 1,
+        estudiosCheck: null,
+        estudiosCheckF: null
     },
     mounted() {
         var incluyemeContent = document.getElementById("content");
@@ -169,6 +171,12 @@ let filterApplicants = new Vue({
             if (this.favoritos) {
                 data.favoritos = 1
             }
+            if (this.estudiosCheck != null) {
+                data.estudiosCheck = this.estudiosCheck ? 1 : 0
+            }
+            if (this.estudiosCheckF != null) {
+                data.estudiosCheckF = this.estudiosCheckF ? 1 : 0
+            }
             let
                 request = await jQuery.ajax({
                     url: url,
@@ -282,6 +290,8 @@ let filterApplicants = new Vue({
                 this.favoritos = null;
                 this.status = [];
                 this.selects = [];
+                this.estudiosCheck = null
+                this.estudiosCheckF = null
             }
         },
         onChange: async function (userId, status, resume) {

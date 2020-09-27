@@ -78,6 +78,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['id']) && !empty($_POST
 	if (!empty($_POST['oral'])) {
 		$data::setOral($_POST['oral']);
 	}
+	if (!empty($_POST['estudiosCheck'])) {
+		$data::setEstudiosCheck($_POST['estudiosCheck']);
+	}
+	if (!empty($_POST['estudiosCheckF'])) {
+		$data::setEstudiosCheckF($_POST['estudiosCheckF']);
+	}
 	if (!empty($_POST['idiomsN'])) {
 		$data::setnewIdioms($_POST['idiomsN']);
 	}

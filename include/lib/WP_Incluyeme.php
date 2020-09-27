@@ -78,7 +78,7 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
   AND 1 = " . $prefix . "wpjb_resume_detail.type
   LEFT OUTER JOIN " . $prefix . "wpjb_resume_detail edu
     ON " . $prefix . "wpjb_resume.id = edu.resume_id AND 2 = edu.type ";
-		if (self::$checkLoginV) {
+		if (self::checkLogin()) {
 			$query .= "  LEFT JOIN " . $prefix . "incluyeme_users_dicapselect
     ON " . $prefix . "wpjb_resume.id = " . $prefix . "incluyeme_users_dicapselect.resume_id
   LEFT JOIN " . $prefix . "incluyeme_discapacities nValue
