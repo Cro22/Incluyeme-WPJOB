@@ -97,6 +97,7 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
             $queries = $this->addQueries($query);
         }
         $queries = $queries . $group;
+        error_log(print_r($queries, true));
         $results = $this->executeQueries($queries);
         try {
             if (count($results) !== 0) {
@@ -115,7 +116,7 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
                 }
                 $response = array_values($response);
                 $response = array_unique($response, SORT_REGULAR);
-                if(self::getEstudiosCheckF() ===1 && self::getEstudiosCheck() !== 1){
+                if(self::getEstudiosCheck() ===1 && self::getEstudiosCheckF() !== 1){
                     foreach ($response as $key => $search) {
                         $rating = $this->searchComplete($response[$key]->users_id);
                         if ($rating === false) {
@@ -227,29 +228,11 @@ AND " . $prefix . "users.ID NOT IN (SELECT
   FROM " . $prefix . "wpjb_resume
     INNER JOIN " . $prefix . "users
       ON " . $prefix . "users.ID = " . $prefix . "wpjb_resume.user_id
-    LEFT OUTER JOIN " . $prefix . "wpjb_resume_search
-      ON " . $prefix . "wpjb_resume.id = " . $prefix . "wpjb_resume_search.resume_id
-    LEFT OUTER JOIN " . $prefix . "wpjb_application
-      ON " . $prefix . "wpjb_resume.user_id = " . $prefix . "wpjb_application.user_id
-    LEFT OUTER JOIN " . $prefix . "wpjb_job
-      ON " . $prefix . "wpjb_application.job_id = " . $prefix . "wpjb_job.id
-    LEFT OUTER JOIN " . $prefix . "wpjb_meta_value
-      ON " . $prefix . "wpjb_application.id = " . $prefix . "wpjb_meta_value.object_id
-    LEFT OUTER JOIN " . $prefix . "wpjb_meta
-      ON " . $prefix . "wpjb_meta_value.meta_id = " . $prefix . "wpjb_meta.id
-    LEFT OUTER JOIN " . $prefix . "wpjb_tagged
-      ON " . $prefix . "wpjb_resume.id = " . $prefix . "wpjb_tagged.id
-    LEFT OUTER JOIN " . $prefix . "posts
-      ON " . $prefix . "wpjb_resume.post_id = " . $prefix . "posts.ID
-    LEFT OUTER JOIN " . $prefix . "usermeta
-      ON " . $prefix . "users.ID = " . $prefix . "usermeta.user_id
-    LEFT OUTER JOIN " . $prefix . "wpjb_company
-      ON " . $prefix . "wpjb_job.employer_id = " . $prefix . "wpjb_company.id
     LEFT OUTER JOIN " . $prefix . "wpjb_resume_detail edu
       ON " . $prefix . "wpjb_resume.id = edu.resume_id
       AND 2 = edu.type
-  WHERE edu.is_current = 0
-  AND " . $prefix . "users.ID = ".$userID.")
+  WHERE  " . $prefix . "users.ID = ".$userID." AND edu.is_current = 1
+  GROUP BY " . $prefix . "users.ID)
 GROUP BY " . $prefix . "users.user_email,
          " . $prefix . "users.display_name,
          " . $prefix . "wpjb_resume.phone,
@@ -266,6 +249,7 @@ GROUP BY " . $prefix . "users.user_email,
          " . $prefix . "users.ID
 LIMIT 1";
         try {
+            error_log(print_r($completes, true));
             $result = $this->executeQueries($completes);
             if (count($result) === 0) {
                 return false;
