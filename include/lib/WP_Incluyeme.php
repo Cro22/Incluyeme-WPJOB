@@ -97,6 +97,7 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
 			$queries = $this->addQueries($query);
 		}
 		$queries = $queries . $group;
+		error_log(print_r($queries, true));
 		$results = $this->executeQueries($queries);
 		try {
 			if (count($results) !== 0) {
