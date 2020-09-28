@@ -134,9 +134,7 @@ WHERE  meta_id = (SELECT " . $prefix . "wpjb_meta.id FROM " . $prefix . "wpjb_me
         }
         if (self::getEstudiosCheck() ===1 && self::getEstudiosCheckF() !== 1) {
             $sql .= " AND edu.is_current = 0 ";
-        } else if (self::getEstudiosCheckF() ===1 && self::getEstudiosCheck() !== 1) {
-            $sql .= " AND edu.is_current = 1";
-        } else if (self::getEstudiosCheckF() === 1 && self::getEstudiosCheck() === 1) {
+        }else if (self::getEstudiosCheckF() === 1 && self::getEstudiosCheck() === 1) {
             $sql .= " AND (edu.is_current = 1  OR edu.is_current = 0 )";
         }
         if (self::getIdioms() !== null) {
