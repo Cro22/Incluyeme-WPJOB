@@ -249,7 +249,7 @@ GROUP BY " . $prefix . "users.user_email,
          " . $prefix . "users.ID
 LIMIT 1";
         try {
-            error_log(print_r($completes, true));
+      
             $result = $this->executeQueries($completes);
             if (count($result) === 0) {
                 return false;
