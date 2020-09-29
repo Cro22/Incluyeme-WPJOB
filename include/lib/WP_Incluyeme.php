@@ -98,7 +98,7 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
         }
         $queries = $queries . $group;
         $results = $this->executeQueries($queries);
-
+        
         try {
             if (count($results) !== 0) {
                 $response = $this->getCV($results);
@@ -115,12 +115,13 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
                     }
                 }
                 $response = array_values($response);
-                $response = array_unique($response, SORT_REGULAR);
-                if(self::getEstudiosCheck() ===1 && self::getEstudiosCheckF() !== 1){
+                
+                if (self::getEstudiosCheck() === 1 && self::getEstudiosCheckF() !== 1) {
+                    $response = array_unique($response, SORT_REGULAR);
                     foreach ($response as $key => $search) {
                         $rating = $this->searchComplete($response[$key]->users_id);
                         if ($rating === false) {
-                                unset($response[$key]);
+                            unset($response[$key]);
                         }
                     }
                 }
@@ -222,7 +223,7 @@ FROM " . $prefix . "wpjb_resume
     ON " . $prefix . "wpjb_resume.id = edu.resume_id
     AND 2 = edu.type
 WHERE " . $prefix . "wpjb_company.user_id = " . self::getUserId() . "
-AND " . $prefix . "users.ID = ".$userID."
+AND " . $prefix . "users.ID = " . $userID . "
 AND " . $prefix . "users.ID NOT IN (SELECT
     " . $prefix . "users.ID AS users_id
   FROM " . $prefix . "wpjb_resume
@@ -231,7 +232,7 @@ AND " . $prefix . "users.ID NOT IN (SELECT
     LEFT OUTER JOIN " . $prefix . "wpjb_resume_detail edu
       ON " . $prefix . "wpjb_resume.id = edu.resume_id
       AND 2 = edu.type
-  WHERE  " . $prefix . "users.ID = ".$userID." AND edu.is_current = 1
+  WHERE  " . $prefix . "users.ID = " . $userID . " AND edu.is_current = 1
   GROUP BY " . $prefix . "users.ID)
 GROUP BY " . $prefix . "users.user_email,
          " . $prefix . "users.display_name,
@@ -249,7 +250,7 @@ GROUP BY " . $prefix . "users.user_email,
          " . $prefix . "users.ID
 LIMIT 1";
         try {
-      
+            
             $result = $this->executeQueries($completes);
             if (count($result) === 0) {
                 return false;
