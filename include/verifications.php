@@ -37,7 +37,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['id']) && !empty($_POST
         $data::setEducation($_POST['education']);
     }
     if (!empty($_POST['resultsNumbers'])) {
-        $data->resultsNumbers = $_POST['resultsNumbers'] === 0 ? 0 : ($_POST['resultsNumbers'] . "0") - 1;
+        $data->resultsNumbers = $_POST['resultsNumbers'] === 0 ? 1 : $_POST['resultsNumbers'];
+    }else{
+        $data->resultsNumbers = 0;
     }
     if (!empty($_POST['city'])) {
         $data::setCity($_POST['city']);

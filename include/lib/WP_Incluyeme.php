@@ -111,7 +111,7 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
     GROUP BY " . $prefix . "users.ID)";
         }
         $group = "
-  GROUP BY   " . $prefix . "users.user_email LIMIT " . $this->resultsNumbers . " , 10";
+  GROUP BY   " . $prefix . "users.user_email LIMIT " . (($this->resultsNumbers - 1) * 10) . " , 10";
         
         if ($this->getSearchPhrase() !== null) {
             $queries = $this->addQueries($query, true);
@@ -136,7 +136,8 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
                     }
                 }
                 $response = array_values($response);
-                return array_unique($response, SORT_REGULAR);
+                error_log(print_r($response, true));
+                return $response;
             }
             return $response = [];
         } catch (Exception $e) {
