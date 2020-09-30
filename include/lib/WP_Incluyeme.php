@@ -120,7 +120,6 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
         }
         $queries = $queries . $group;
         $results = $this->executeQueries($queries);
-        error_log(print_r($queries, true));
         try {
             if (count($results) !== 0) {
                 $response = $this->getCV($results);
@@ -137,7 +136,6 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
                     }
                 }
                 $response = array_values($response);
-                error_log(print_r($response, true));
                 return array_unique($response, SORT_REGULAR);
             }
             return $response = [];
@@ -193,7 +191,6 @@ WHERE ' . $prefix . 'wpjb_meta.name = "rating"
          ' . $prefix . 'wpjb_resume.candidate_location,
           ' . $prefix . 'users.ID  LIMIT 1';
         $query .= $group;
-        error_log(print_r($query, true));
         $result = $this->executeQueries($query);
         try {
             if (count($result) === 0) {
