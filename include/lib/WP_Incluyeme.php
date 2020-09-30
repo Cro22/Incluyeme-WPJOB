@@ -7,7 +7,7 @@ include 'filters/WP_Filters_Incluyeme.php';
 
 class WP_Incluyeme extends WP_Filters_Incluyeme
 {
-    const VERSION = '1.7.7';
+    const VERSION = '1.7.8';
     public $resultsNumbers = 1;
     
     function searchModifiedIncluyeme($withExtra = false)
@@ -30,14 +30,14 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
   " . $prefix . "wpjb_application.id AS application_id,
   " . $prefix . "wpjb_resume.id AS resume_id,
   lValue.value AS discap,
-  lVal.meta_value AS last_name,
-  meta.name AS type_discap,
-  " . $prefix . "wpjb_resume_detail.grantor AS contratante,
-  " . $prefix . "wpjb_resume_detail.detail_title AS puesto,
-  " . $prefix . "wpjb_resume_detail.type AS WType,
-  edu.grantor AS academia,
-  edu.detail_title AS titulo,
-  edu.type AS eduType";
+  MIN(lVal.meta_value) AS last_name,
+  MIN(" . $prefix . "wpjb_resume_detail.grantor) AS contratante,
+  MIN(" . $prefix . "wpjb_resume_detail.detail_title) AS puesto,
+  MIN(" . $prefix . "wpjb_resume_detail.type) AS WType,
+  MIN(edu.grantor) AS academia,
+  MIN(edu.detail_title) AS titulo,
+  MIN(edu.type) AS eduType,
+  MIN(nValue.discap_name) AS nValueN";
         if (self::checkLogin()) {
             $query .= ', nValue.discap_name AS nValueN ';
         }
@@ -90,7 +90,8 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
         } else {
             $query .= " WHERE meta.name = 'tipo_discapacidad' and " . $prefix . "wpjb_company.user_id = " . self::getUserId();
         }
-        
+        $query.= " AND (lValue.value IN ('Motriz', 'Auditiva', 'Visual', 'Visceral', 'Intelectual', 'Psíquica', 'Lenguaje')
+OR nValue.discap_name IN ('Motriz', 'Auditiva', 'Visual', 'Visceral', 'Intelectual', 'Psíquica', 'Lenguaje'))";
         if (self::getEstudiosCheck() === 1 && self::getEstudiosCheckF() !== 1) {
             $qry2 = self::getJob() !== null ? " AND " . $prefix . "wpjb_job.id = " . self::getJob() . ' ' : '';
             $query .= " AND " . $prefix . "users.ID NOT IN (SELECT
@@ -111,7 +112,21 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
     GROUP BY " . $prefix . "users.ID)";
         }
         $group = "
-  GROUP BY   " . $prefix . "users.user_email LIMIT " . (($this->resultsNumbers - 1) * 10) . " , 10";
+  GROUP BY  " . $prefix . "users.user_email,
+         " . $prefix . "users.display_name,
+         " . $prefix . "wpjb_resume.phone,
+        " . $prefix . "wpjb_resume.description,
+        " . $prefix . "wpjb_job.job_title,
+        " . $prefix . "posts.guid,
+        " . $prefix . "usermeta.meta_key,
+         " . $prefix . "wpjb_application.status,
+         " . $prefix . "usermeta.meta_value,
+         " . $prefix . "wpjb_resume.candidate_state,
+         " . $prefix . "wpjb_resume.candidate_location,
+         " . $prefix . "users.ID,
+        " . $prefix . "wpjb_application.id,
+         " . $prefix . "wpjb_resume.id,
+         lValue.value LIMIT " . (($this->resultsNumbers - 1) * 10) . " , 10";
         
         if ($this->getSearchPhrase() !== null) {
             $queries = $this->addQueries($query, true);
@@ -119,6 +134,7 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
             $queries = $this->addQueries($query);
         }
         $queries = $queries . $group;
+        error_log(print_r($queries, true));
         $results = $this->executeQueries($queries);
         try {
             if (count($results) !== 0) {
@@ -138,7 +154,7 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
                 $response = array_values($response);
                
                 error_log(print_r($response, true));
-                return $response;
+                return array_unique($response, SORT_REGULAR);
             }
             return $response = [];
         } catch (Exception $e) {
@@ -205,3 +221,5 @@ WHERE ' . $prefix . 'wpjb_meta.name = "rating"
     }
     
 }
+
+
