@@ -27,7 +27,7 @@ $css = plugins_url() . '/incluyeme/include/assets/css/';
 wp_register_script('popper', 'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js', ['jquery'], '1.0.0');
 wp_register_script('bootstrapJs', $js . 'bootstrap.min.js', ['jquery', 'popper'], '1.0.0');
 wp_register_script('vueJS', $js . 'vueDEV.js', ['bootstrapJs'], '1.0.0');
-wp_register_script('vueD', $js . 'vuew1.7.0.js', ['vueJS'], '2.0.0');
+wp_register_script('vueD', $js . 'vuew1.7.7.js', ['vueJS'], '2.0.0');
 wp_register_script('bootstrap-notify', $js . 'iziToast.js', ['bootstrapJs'], '2.0.0');
 wp_register_style('bootstrap-css', $css . 'bootstrap.min.css', [], '1.0.0', false);
 wp_register_style('bootstrap-notify-css', $css . 'iziToast.min.css', [], '1.0.0', false);
@@ -49,36 +49,36 @@ $baseurl = $baseurl['baseurl'];
     document.body.appendChild(xFoo);
 </script>
 <div class="wpjb wpjb-page-job-applications" id="incluyeme-wpjb">
-	
-	<?php wpjb_flash(); ?>
-	<?php wpjb_breadcrumbs($breadcrumbs) ?>
+    
+    <?php wpjb_flash(); ?>
+    <?php wpjb_breadcrumbs($breadcrumbs) ?>
 	<div class="container">
 		<div class="row">
 			<div class="col-10">
 				<div id="wpjb-top-search" class="wpjb-layer-inside wpjb-filter-applications">
 					<form action="<?php echo esc_attr(wpjb_link_to("job_applications")) ?>" method="GET">
-						<?php global $wp_rewrite ?>
-						<?php if (!$wp_rewrite->using_permalinks()): ?>
+                        <?php global $wp_rewrite ?>
+                        <?php if (!$wp_rewrite->using_permalinks()): ?>
 							<input type="hidden" name="page_id" value="<?php echo $page_id ?>"/>
 							<input type="hidden" name="job_board" value="find"/>
-						<?php endif; ?>
+                        <?php endif; ?>
 						<div class="wpjb-search wpjb-search-group-visible">
 							<div class="wpjb-input wpjb-input-type-half wpjb-input-type-half-left">
 								<select name="job_id">
 									<option value=""><?php _e("All Jobs", "wpjobboard") ?></option>
-									<?php foreach ($jobsList as $job): ?>
+                                    <?php foreach ($jobsList as $job): ?>
 										<option value="<?php echo esc_html($job->id) ?>" <?php selected($job->id, $job_id) ?>><?php echo esc_html($job->job_title) ?></option>
-									<?php endforeach; ?>
+                                    <?php endforeach; ?>
 								</select>
 							</div>
 							
 							<div class="wpjb-input wpjb-input-type-half wpjb-input-type-half-left">
 								<select name="job_status">
 									<option value=""><?php _e("All Statuses", "wpjobboard") ?></option>
-									<?php foreach ($public_ids as $status_id): ?>
-										<?php $status = wpjb_get_application_status($status_id) ?>
+                                    <?php foreach ($public_ids as $status_id): ?>
+                                        <?php $status = wpjb_get_application_status($status_id) ?>
 										<option value="<?php echo esc_html($status_id) ?>" <?php selected($job_status, $status_id) ?>><?php echo esc_html($status["label"]) ?></option>
-									<?php endforeach; ?>
+                                    <?php endforeach; ?>
 								</select>
 							</div>
 						</div>
@@ -106,19 +106,19 @@ $baseurl = $baseurl['baseurl'];
 		</div>
 	</div>
 	<div v-if="message===false" class="wpjb-grid wpjb-grid-compact">
-		
-		<?php if (!empty($apps->application)): ?>
-			
-			<?php foreach ($apps->application as $application): ?>
-				<?php $job = $application->getJob(true); ?>
-				<?php $current_status = wpjb_get_application_status($application->status) ?>
+        
+        <?php if (!empty($apps->application)): ?>
+            
+            <?php foreach ($apps->application as $application): ?>
+                <?php $job = $application->getJob(true); ?>
+                <?php $current_status = wpjb_get_application_status($application->status) ?>
 				
 				<div
 						class="wpjb-grid-row wpjb-manage-item wpjb-manage-application wpjb-application-status-<?php echo esc_attr($current_status["key"]) ?>"
 						data-id="<?php echo esc_html($application->id) ?>">
 					
 					<div class="wpjb-grid-col wpjb-col-1 wpjb-manage-header-img" style="width:60px">
-						<?php echo get_avatar($application->email, 52) ?>
+                        <?php echo get_avatar($application->email, 52) ?>
 					</div>
 					
 					<div class="wpjb-grid-col wpjb-col-90" style="width:calc( 100% - 60px )">
@@ -127,19 +127,19 @@ $baseurl = $baseurl['baseurl'];
                     <span class="wpjb-manage-header-left wpjb-line-major wpjb-manage-title">
                         <a href="<?php echo esc_attr(add_query_arg($query_args, wpjb_link_to("job_application", $application))) ?>">
                             <?php if ($application->applicant_name): ?>
-	                            <?php esc_html_e($application->applicant_name) ?>
+                                <?php esc_html_e($application->applicant_name) ?>
                             <?php else: ?>
-	                            <?php _e("ID");
-	                            echo ": ";
-	                            echo $application->id; ?>
+                                <?php _e("ID");
+                                echo ": ";
+                                echo $application->id; ?>
                             <?php endif; ?>
                         </a>
 
                     </span>
 							
 							<ul class="wpjb-manage-header-right">
-								
-								<?php do_action("wpjb_sh_manage_applications_header_right_before", $application->id) ?>
+                                
+                                <?php do_action("wpjb_sh_manage_applications_header_right_before", $application->id) ?>
 								
 								<li>
 									<span class="wpjb-glyphs wpjb-icon-briefcase"></span>
@@ -155,8 +155,8 @@ $baseurl = $baseurl['baseurl'];
                             <?php echo esc_html(sprintf(__("%s ago.", "wpjobboard"), wpjb_time_ago($application->applied_at))) ?>
                             </span>
 								</li>
-								
-								<?php do_action("wpjb_sh_manage_applications_header_right_after", $application->id) ?>
+                                
+                                <?php do_action("wpjb_sh_manage_applications_header_right_after", $application->id) ?>
 							</ul>
 						
 						
@@ -205,12 +205,12 @@ $baseurl = $baseurl['baseurl'];
 	                            
                                 <?php $rated = incluyeme_rating_function($application->id);
                                 if ($rated) {
-	                                $rated = $rated[0]->value;
-	
+                                    $rated = $rated[0]->value;
+    
                                 } else {
-	                                $rated = 0;
+                                    $rated = 0;
                                 }
-                             
+
                                 for ($i = 0; $i < 5; $i++): ?><span
 	                                class="wpjb-star-rating wpjb-motif wpjb-glyphs wpjb-icon-star-empty <?php if ($rated > $i): ?>wpjb-star-checked<?php endif; ?>"
 	                                data-value="<?php echo $i + 1 ?>" ></span><?php endfor ?>
@@ -225,7 +225,7 @@ $baseurl = $baseurl['baseurl'];
                     </span>
 							
 							<div class="wpjb-manage-actions-more">
-								<?php do_action("wpjb_sh_manage_applications_actions_more", $job->id, $job->post_id, $application) ?>
+                                <?php do_action("wpjb_sh_manage_applications_actions_more", $job->id, $job->post_id, $application) ?>
 							</div>
 						</div>
 					
@@ -235,15 +235,15 @@ $baseurl = $baseurl['baseurl'];
 					
 					<div class="wpjb-application-change-status wpjb-filter-applications" style="display: none">
 						<select name="job_id" class="wpjb-application-change-status-dropdown">
-							<?php foreach ($public_ids as $status_id): ?>
-								<?php $status = wpjb_get_application_status($status_id) ?>
+                            <?php foreach ($public_ids as $status_id): ?>
+                                <?php $status = wpjb_get_application_status($status_id) ?>
 								<option
 										value="<?php echo esc_html($status_id) ?>"
-									<?php selected($application->status, $status_id) ?>
+                                    <?php selected($application->status, $status_id) ?>
 										data-can-notify="<?php if (isset($status["notify_applicant_email"]) && !empty($status["notify_applicant_email"])): ?>1<?php endif; ?>"
 								><?php echo esc_html($status["label"]) ?>
 								</option>
-							<?php endforeach; ?>
+                            <?php endforeach; ?>
 						</select>
 						
 						<input type="checkbox" value="1" class="wpjb-application-change-status-checkbox"
@@ -256,18 +256,18 @@ $baseurl = $baseurl['baseurl'];
 						<a href="#" class="wpjb-button wpjb-application-change-status-submit"
 						   style="float:right"><?php _e("Change", "wpjobboard") ?></a>
 					</div>
-					
-					<?php do_action("wpjb_sh_manage_applications_after", $job->id, $job->post_id, $application) ?>
+                    
+                    <?php do_action("wpjb_sh_manage_applications_after", $job->id, $job->post_id, $application) ?>
 				</div>
-			
-			<?php endforeach; ?>
-		<?php else: ?>
+            
+            <?php endforeach; ?>
+        <?php else: ?>
 			<div class="wpjb-grid-row">
 				<div class="wpjb-col-100 wpjb-grid-col-center">
-					<?php _e("No applicants found.", "wpjobboard"); ?>
+                    <?php _e("No applicants found.", "wpjobboard"); ?>
 				</div>
 			</div>
-		<?php endif; ?>
+        <?php endif; ?>
 	</div>
 	<div class="wpjb-grid wpjb-grid-compact" v-else-if="typeof message === 'string'">
 		<div class="wpjb-grid-row">
@@ -374,13 +374,22 @@ $baseurl = $baseurl['baseurl'];
 					</x-incluyeme>
 				</x-incluyeme>
 			</x-incluyeme>
-	
-	</div>
-	<?php if (!empty($apps->application)): ?>
-		<div class="wpjb-paginate-links" v-if="message===false">
-			<?php wpjb_paginate_links($url, $apps->pages, $apps->page) ?>
+		</x-incluyeme>
+		<div class="container text-right mt-2" v-if="moreDataFail">
+			<button type="button" v-on:click="moreData()" id="showMore" class="btn btn-secondary"
+			        style="font-size: 0.75rem;">
+				<span><?php _e("Cargar mas...", "wpjobboard") ?></span>
+			</button>
 		</div>
-	<?php endif; ?>
+		<div class="container text-right mt-2" v-else-if="moreDataFail=== false">
+			<p>No hay mas resultados</p>
+		</div>
+	</div>
+    <?php if (!empty($apps->application)): ?>
+		<div class="wpjb-paginate-links" v-if="message===false">
+            <?php wpjb_paginate_links($url, $apps->pages, $apps->page) ?>
+		</div>
+    <?php endif; ?>
 	<div class="container">
 		<!-- Modal -->
 		<div id="filterApplicants" class="modal" tabindex="-1" role="dialog" aria-labelledby="filterApplicants"
@@ -412,9 +421,9 @@ $baseurl = $baseurl['baseurl'];
 													        selected><?php _e("Seleccionar Aviso.", "wpjobboard"); ?></option>
 													<option value="0"
 													        selected><?php _e("Buscar en todos los avisos.", "wpjobboard"); ?></option>
-													<?php foreach ($jobsList as $job): ?>
+                                                    <?php foreach ($jobsList as $job): ?>
 														<option value="<?php echo esc_html($job->id) ?>" <?php selected($job->id, $job_id) ?>><?php echo esc_html($job->job_title) ?></option>
-													<?php endforeach; ?>
+                                                    <?php endforeach; ?>
 												</select>
 											</div>
 											<div class="form-group">
@@ -701,12 +710,12 @@ $baseurl = $baseurl['baseurl'];
     });
 </script>
 <style>
-	span.wpjb-glyphs.wpjb-star-rating.personal:before {
-		font-size: 1.5rem !important;
-	}
-	
-	span.wpjb-star-checked:before {
-		content: '\e806';
-	}
+    span.wpjb-glyphs.wpjb-star-rating.personal:before {
+        font-size: 1.5rem !important;
+    }
+
+    span.wpjb-star-checked:before {
+        content: '\e806';
+    }
 
 </style>

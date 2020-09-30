@@ -7,7 +7,8 @@ include 'filters/WP_Filters_Incluyeme.php';
 
 class WP_Incluyeme extends WP_Filters_Incluyeme
 {
-    const VERSION = '1.0.0';
+    const VERSION = '1.7.7';
+    public $resultsNumbers = 0;
     
     function searchModifiedIncluyeme($withExtra = false)
     {
@@ -89,9 +90,9 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
         } else {
             $query .= " WHERE meta.name = 'tipo_discapacidad' and " . $prefix . "wpjb_company.user_id = " . self::getUserId();
         }
-    
+        
         if (self::getEstudiosCheck() === 1 && self::getEstudiosCheckF() !== 1) {
-            $qry2 =self::getJob() !== null ?  " AND " . $prefix . "wpjb_job.id = " . self::getJob() . ' ' : '';
+            $qry2 = self::getJob() !== null ? " AND " . $prefix . "wpjb_job.id = " . self::getJob() . ' ' : '';
             $query .= " AND " . $prefix . "users.ID NOT IN (SELECT
     " . $prefix . "users.ID AS users_id
   FROM " . $prefix . "wpjb_resume
@@ -106,12 +107,12 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
     ON wp_wpjb_application.job_id = wp_wpjb_job.id
      LEFT OUTER JOIN wp_wpjb_company
     ON wp_wpjb_job.employer_id = wp_wpjb_company.id
-  WHERE   edu.is_current = 1 AND " . $prefix . "wpjb_company.user_id = " . self::getUserId() . $qry2."
+  WHERE   edu.is_current = 1 AND " . $prefix . "wpjb_company.user_id = " . self::getUserId() . $qry2 . "
     GROUP BY " . $prefix . "users.ID)";
         }
         $group = "
-  GROUP BY   " . $prefix . "users.user_email";
-     
+  GROUP BY   " . $prefix . "users.user_email LIMIT " . $this->resultsNumbers . " , 10";
+        
         if ($this->getSearchPhrase() !== null) {
             $queries = $this->addQueries($query, true);
         } else {
@@ -119,7 +120,7 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
         }
         $queries = $queries . $group;
         $results = $this->executeQueries($queries);
-        
+        error_log(print_r($queries, true));
         try {
             if (count($results) !== 0) {
                 $response = $this->getCV($results);
@@ -136,6 +137,7 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
                     }
                 }
                 $response = array_values($response);
+                error_log(print_r($response, true));
                 return array_unique($response, SORT_REGULAR);
             }
             return $response = [];
@@ -191,7 +193,7 @@ WHERE ' . $prefix . 'wpjb_meta.name = "rating"
          ' . $prefix . 'wpjb_resume.candidate_location,
           ' . $prefix . 'users.ID  LIMIT 1';
         $query .= $group;
-        
+        error_log(print_r($query, true));
         $result = $this->executeQueries($query);
         try {
             if (count($result) === 0) {
