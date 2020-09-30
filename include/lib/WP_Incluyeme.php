@@ -8,7 +8,7 @@ include 'filters/WP_Filters_Incluyeme.php';
 class WP_Incluyeme extends WP_Filters_Incluyeme
 {
     const VERSION = '1.7.7';
-    public $resultsNumbers = 0;
+    public $resultsNumbers = 1;
     
     function searchModifiedIncluyeme($withExtra = false)
     {
@@ -136,6 +136,7 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
                     }
                 }
                 $response = array_values($response);
+               
                 error_log(print_r($response, true));
                 return $response;
             }

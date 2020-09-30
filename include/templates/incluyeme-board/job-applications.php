@@ -27,7 +27,7 @@ $css = plugins_url() . '/incluyeme/include/assets/css/';
 wp_register_script('popper', 'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js', ['jquery'], '1.0.0');
 wp_register_script('bootstrapJs', $js . 'bootstrap.min.js', ['jquery', 'popper'], '1.0.0');
 wp_register_script('vueJS', $js . 'vueDEV.js', ['bootstrapJs'], '1.0.0');
-wp_register_script('vueD', $js . 'vuew1.7.7.js', ['vueJS'], '2.0.0');
+wp_register_script('vueD', $js . 'vuew1.7.8.js', ['vueJS'], '2.0.0');
 wp_register_script('bootstrap-notify', $js . 'iziToast.js', ['bootstrapJs'], '2.0.0');
 wp_register_style('bootstrap-css', $css . 'bootstrap.min.css', [], '1.0.0', false);
 wp_register_style('bootstrap-notify-css', $css . 'iziToast.min.css', [], '1.0.0', false);

@@ -75,13 +75,13 @@ let filterApplicants = new Vue({
         filterData: async function (img, userId, url, validate = false) {
             this.img = img;
             this.searchEnable = true;
+            this.resultsNumbers = 1;
             url = url + '/incluyeme/include/verifications.php';
             this.url = url;
             jQuery("#filterApplicants").modal('hide');
             jQuery('body').removeClass('modal-open');
             jQuery('.modal-backdrop').remove();
             this.message = 'Buscando...';
-            this.resultsNumbers = 0;
             const statuses = (val, number) => {
                 if (val) {
                     this.status.push(number);
