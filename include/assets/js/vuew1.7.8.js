@@ -38,12 +38,15 @@ let filterApplicants = new Vue({
         favoritos: null,
         selected: 1,
         estudiosCheck: null,
-        estudiosCheckF: null
+        estudiosCheckF: null,
+        resultsNumbers: 0,
+        informationSearch: null,
+        moreDataFail: false
     },
     mounted() {
-        var incluyemeContent = document.getElementById("content");
-        var incluyemeSidebar = document.getElementById("sidebar");
-        var incluyemeTitle = document.getElementsByClassName("container  right-sidebar  no-vc  right-sidebar  has-title no-vc");
+        let incluyemeContent = document.getElementById("content");
+        let incluyemeSidebar = document.getElementById("sidebar");
+        let incluyemeTitle = document.getElementsByClassName("container  right-sidebar  no-vc  right-sidebar  has-title no-vc");
         if (incluyemeContent && incluyemeSidebar && incluyemeTitle) {
             incluyemeContent.classList.add("col-9");
             incluyemeSidebar.classList.add("col");
@@ -72,6 +75,7 @@ let filterApplicants = new Vue({
         filterData: async function (img, userId, url, validate = false) {
             this.img = img;
             this.searchEnable = true;
+            this.resultsNumbers = 1;
             url = url + '/incluyeme/include/verifications.php';
             this.url = url;
             jQuery("#filterApplicants").modal('hide');
@@ -177,6 +181,8 @@ let filterApplicants = new Vue({
             if (this.estudiosCheckF != null) {
                 data.estudiosCheckF = this.estudiosCheckF ? 1 : 0
             }
+            data.resultsNumbers = this.resultsNumbers;
+            this.informationSearch = data;
             let
                 request = await jQuery.ajax({
                     url: url,
@@ -211,7 +217,7 @@ let filterApplicants = new Vue({
                         return newArray;
                     };
                     request.message = k(request.message, 'resume_id');
-                    for (let i in request.message) {
+                    for (let i =0; i< request.message.length; i++) {
                         request.message[i].applicant_status = Number(request.message[i].applicant_status);
                         if (request.message[i].applicant_status === 3) {
                             request.message[i].color = '1px solid black';
@@ -231,6 +237,7 @@ let filterApplicants = new Vue({
                         }
                     }
                     this.message = request.message;
+                    this.moreDataFail = true;
                 } else {
                     this.message = 'No hay resultados';
                 }
@@ -337,6 +344,70 @@ let filterApplicants = new Vue({
                 alert('Disculpe, hay un problema');
             });
             this.filterData(this.img, userId, this.url, true);
+        },
+        moreData: async function () {
+            this.resultsNumbers = Number(this.resultsNumbers) + 1;
+            this.informationSearch.resultsNumbers = this.resultsNumbers;
+
+            let
+                request = await jQuery.ajax({
+                    url: this.url,
+                    data: this.informationSearch,
+                    type: 'POST',
+                    dataType: 'json'
+                }).done(success => {
+                    return success
+                }).fail((error) => {
+                    return 'Disculpe, hay un problema';
+                });
+            if (typeof request === 'string') {
+                this.message = request
+            } else {
+                if (!Array.isArray(request.message)) {
+                    requestChange = request.message;
+                    request.message = [];
+                    request.message.push(requestChange[1]);
+                }
+                if (request.message.length) {
+                    let k = function removeDuplicates(originalArray, prop) {
+                        var newArray = [];
+                        var lookupObject = {};
+
+                        for (var i in originalArray) {
+                            lookupObject[originalArray[i][prop]] = originalArray[i];
+                        }
+
+                        for (i in lookupObject) {
+                            newArray.push(lookupObject[i]);
+                        }
+                        return newArray;
+                    };
+                    request.message = k(request.message, 'resume_id');
+                    for (let i =0; i< request.message.length; i++) {
+                        request.message[i].applicant_status = Number(request.message[i].applicant_status);
+                        if (request.message[i].applicant_status === 3) {
+                            request.message[i].color = '1px solid black';
+                            request.message[i].read = '#Leido'
+                        } else if (request.message[i].applicant_status === 1) {
+                            request.message[i].color = '1px solid blue';
+                            request.message[i].read = '#Nuevo'
+                        } else if (request.message[i].applicant_status === 4) {
+                            request.message[i].color = '1px solid orange';
+                            request.message[i].read = '#Preseleccionado'
+                        } else if (request.message[i].applicant_status === 2) {
+                            request.message[i].color = '1px solid green';
+                            request.message[i].read = '#Seleccionado'
+                        } else if (request.message[i].applicant_status === 0) {
+                            request.message[i].color = '1px solid red';
+                            request.message[i].read = '#Desestimado';
+                        }
+                    }
+                    this.message.push(...request.message)
+                    this.message = request.message;
+                } else {
+                    this.moreDataFail = false;
+                }
+            }
         }
     }
 });
