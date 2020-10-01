@@ -203,20 +203,6 @@ let filterApplicants = new Vue({
                     request.message.push(requestChange[1]);
                 }
                 if (request.message.length) {
-                    let k = function removeDuplicates(originalArray, prop) {
-                        var newArray = [];
-                        var lookupObject = {};
-
-                        for (var i in originalArray) {
-                            lookupObject[originalArray[i][prop]] = originalArray[i];
-                        }
-
-                        for (i in lookupObject) {
-                            newArray.push(lookupObject[i]);
-                        }
-                        return newArray;
-                    };
-                    request.message = k(request.message, 'resume_id');
                     for (let i =0; i< request.message.length; i++) {
                         request.message[i].applicant_status = Number(request.message[i].applicant_status);
                         if (request.message[i].applicant_status === 3) {
