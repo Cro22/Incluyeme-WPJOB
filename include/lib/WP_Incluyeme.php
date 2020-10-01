@@ -273,8 +273,12 @@ WHERE ' . $prefix . 'wpjb_meta.name = "rating"
                       {$prefix}wpjb_resume_detail.detail_title AS titulo
                     FROM {$prefix}wpjb_resume_detail
                       WHERE 2 = {$prefix}wpjb_resume_detail.type
-                      AND resume_id = {$userId}
-                      LIMIT 1";
+                      AND resume_id = {$userId}";
+        if (self::getCourse() !== null) {
+            $workQuery .= " AND {$prefix}wpjb_resume_detail.detail_title LIKE '%" . self::getCourse() . "%' ";
+        }
+        
+        $workQuery .= "  LIMIT 1";
         $result = $this->executeQueries($workQuery);
         try {
             if (count($result) === 0) {

@@ -275,7 +275,8 @@ class WP_Filters_Incluyeme
                               WHERE  lValue.value in ( %disability% ) AND {$prefix}wpjb_company.user_id = " . self::getUserId() . "
                             GROUP BY {$prefix}wpjb_resume.id)";
             $sql = self::changePrefix($sql, '%disability%', '"' . implode('","', self::getDisability()) . '"');
-        } else if (self::getDisability() !== null && self::$checkLoginV) {
+        }
+        elseif (self::getDisability() !== null && self::$checkLoginV) {
             $sql .= " AND {$prefix}wpjb_resume.id IN (SELECT
                       {$prefix}wpjb_resume.id
                     FROM {$prefix}wpjb_resume
