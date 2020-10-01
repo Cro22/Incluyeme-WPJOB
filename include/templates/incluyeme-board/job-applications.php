@@ -27,7 +27,7 @@ $css = plugins_url() . '/incluyeme/include/assets/css/';
 wp_register_script('popper', 'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js', ['jquery'], '1.0.0');
 wp_register_script('bootstrapJs', $js . 'bootstrap.min.js', ['jquery', 'popper'], '1.0.0');
 wp_register_script('vueJS', $js . 'vueDEV.js', ['bootstrapJs'], '1.0.0');
-wp_register_script('vueD', $js . 'vuewNews.js', ['vueJS'], '2.0.0');
+wp_register_script('vueD', $js . 'vuew1.7.0.js', ['vueJS'], '2.0.0');
 wp_register_script('bootstrap-notify', $js . 'iziToast.js', ['bootstrapJs'], '2.0.0');
 wp_register_style('bootstrap-css', $css . 'bootstrap.min.css', [], '1.0.0', false);
 wp_register_style('bootstrap-notify-css', $css . 'iziToast.min.css', [], '1.0.0', false);
@@ -556,6 +556,24 @@ $baseurl = $baseurl['baseurl'];
 												       v-model="description"
 												       placeholder="<?php _e("Descripción", "wpjobboard"); ?>">
 											</label>
+										</div>
+										<div class="form-group">
+											<div class="form-check form-check-inline">
+												<label class="form-check-label"
+												       for="inlineCheckbox1"><?php _e("Estudios:", "wpjobboard"); ?></label>
+											</div>
+											<div class="form-check form-check-inline">
+												<input class="form-check-input" type="checkbox" id="estudiosCheck1"
+												       value="Nuevo" v-model="estudiosCheck" name="estudiosCheck">
+												<label class="form-check-label"
+												       for="estudiosCheck1"><?php _e("Completados", "wpjobboard"); ?></label>
+											</div>
+											<div class="form-check form-check-inline">
+												<input class="form-check-input" type="checkbox" id="estudiosCheck2"
+												       value="Leído" v-model="estudiosCheckF" name="estudiosCheck">
+												<label class="form-check-label"
+												       for="estudiosCheck2"><?php _e("En Curso", "wpjobboard"); ?></label>
+											</div>
 										</div>
 										<div class="form-group">
 											<label for="idioms"><?php _e("Idiomas.", "wpjobboard"); ?>

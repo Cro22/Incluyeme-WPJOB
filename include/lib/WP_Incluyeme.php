@@ -7,13 +7,13 @@ include 'filters/WP_Filters_Incluyeme.php';
 
 class WP_Incluyeme extends WP_Filters_Incluyeme
 {
-	const VERSION = '1.0.0';
-	
-	function searchModifiedIncluyeme($withExtra = false)
-	{
-		global $wpdb;
-		$prefix = $wpdb->prefix;
-		$query = "SELECT
+    const VERSION = '1.0.0';
+    
+    function searchModifiedIncluyeme($withExtra = false)
+    {
+        global $wpdb;
+        $prefix = $wpdb->prefix;
+        $query = "SELECT
   " . $prefix . "users.user_email,
   " . $prefix . "users.display_name,
   " . $prefix . "wpjb_resume.phone,
@@ -37,10 +37,10 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
   edu.grantor AS academia,
   edu.detail_title AS titulo,
   edu.type AS eduType";
-		if (self::checkLogin()) {
-			$query .= ', nValue.discap_name AS nValueN ';
-		}
-		$query .= " FROM " . $prefix . "wpjb_resume
+        if (self::checkLogin()) {
+            $query .= ', nValue.discap_name AS nValueN ';
+        }
+        $query .= " FROM " . $prefix . "wpjb_resume
   INNER JOIN " . $prefix . "users
     ON " . $prefix . "users.ID = " . $prefix . "wpjb_resume.user_id
   INNER JOIN " . $prefix . "wpjb_resume_search
@@ -78,55 +78,77 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
   AND 1 = " . $prefix . "wpjb_resume_detail.type
   LEFT OUTER JOIN " . $prefix . "wpjb_resume_detail edu
     ON " . $prefix . "wpjb_resume.id = edu.resume_id AND 2 = edu.type ";
-		if (self::$checkLoginV) {
-			$query .= "  LEFT JOIN " . $prefix . "incluyeme_users_dicapselect
+        if (self::checkLogin()) {
+            $query .= "  LEFT JOIN " . $prefix . "incluyeme_users_dicapselect
     ON " . $prefix . "wpjb_resume.id = " . $prefix . "incluyeme_users_dicapselect.resume_id
   LEFT JOIN " . $prefix . "incluyeme_discapacities nValue
     ON " . $prefix . "incluyeme_users_dicapselect.discap_id = nValue.id ";
-			$query .= "  LEFT OUTER JOIN " . $prefix . "incluyeme_users_idioms ON " . $prefix . "wpjb_resume.id = " . $prefix . "incluyeme_users_idioms.resume_id
+            $query .= "  LEFT OUTER JOIN " . $prefix . "incluyeme_users_idioms ON " . $prefix . "wpjb_resume.id = " . $prefix . "incluyeme_users_idioms.resume_id
         WHERE (meta.name = 'tipo_discapacidad' or  wp_incluyeme_users_dicapselect.resume_id) AND " . $prefix . "wpjb_company.user_id = " . self::getUserId();
-			
-		} else {
-			$query .= " WHERE meta.name = 'tipo_discapacidad' and " . $prefix . "wpjb_company.user_id = " . self::getUserId();
-		}
-		$group = "
+        
+        } else {
+            $query .= " WHERE meta.name = 'tipo_discapacidad' and " . $prefix . "wpjb_company.user_id = " . self::getUserId();
+        }
+    
+        if (self::getEstudiosCheck() === 1 && self::getEstudiosCheckF() !== 1) {
+            $qry2 =self::getJob() !== null ?  " AND " . $prefix . "wpjb_job.id = " . self::getJob() . ' ' : '';
+            $query .= " AND " . $prefix . "users.ID NOT IN (SELECT
+    " . $prefix . "users.ID AS users_id
+  FROM " . $prefix . "wpjb_resume
+    INNER JOIN " . $prefix . "users
+      ON " . $prefix . "users.ID = " . $prefix . "wpjb_resume.user_id
+    LEFT OUTER JOIN " . $prefix . "wpjb_resume_detail edu
+      ON " . $prefix . "wpjb_resume.id = edu.resume_id
+      AND 2 = edu.type
+      INNER JOIN wp_wpjb_application
+    ON wp_wpjb_resume.user_id = wp_wpjb_application.user_id
+     INNER JOIN wp_wpjb_job
+    ON wp_wpjb_application.job_id = wp_wpjb_job.id
+     LEFT OUTER JOIN wp_wpjb_company
+    ON wp_wpjb_job.employer_id = wp_wpjb_company.id
+  WHERE   edu.is_current = 1 AND " . $prefix . "wpjb_company.user_id = " . self::getUserId() . $qry2."
+    GROUP BY " . $prefix . "users.ID)";
+        }
+        $group = "
   GROUP BY   " . $prefix . "users.user_email";
-		if ($this->getSearchPhrase() !== null) {
-			$queries = $this->addQueries($query, true);
-		} else {
-			$queries = $this->addQueries($query);
-		}
-		$queries = $queries . $group;
-		$results = $this->executeQueries($queries);
-		try {
-			if (count($results) !== 0) {
-				$response = $this->getCV($results);
-				foreach ($response as $key => $search) {
-					$rating = $this->getExtraRating($response[$key]->users_id);
-					if ($rating !== false) {
-						$response[$key]->rating = $rating[0]->rating;
-					} else {
-						if (self::getFavs()) {
-							unset($response[$key]);
-						} else {
-							$response[$key]->rating = false;
-						}
-					}
-				}
-				$response = array_values($response);
-				return array_unique($response, SORT_REGULAR);
-			}
-			return $response = [];
-		} catch (Exception $e) {
-			throw new Exception('Invalid data passing to this function: searchModifiedIncluyeme' . $e);
-		}
-	}
-	
-	private function getExtraRating($userId)
-	{
-		global $wpdb;
-		$prefix = $wpdb->prefix;
-		$query = 'SELECT
+     
+        if ($this->getSearchPhrase() !== null) {
+            $queries = $this->addQueries($query, true);
+        } else {
+            $queries = $this->addQueries($query);
+        }
+        $queries = $queries . $group;
+        $results = $this->executeQueries($queries);
+        
+        try {
+            if (count($results) !== 0) {
+                $response = $this->getCV($results);
+                foreach ($response as $key => $search) {
+                    $rating = $this->getExtraRating($response[$key]->users_id);
+                    if ($rating !== false) {
+                        $response[$key]->rating = $rating[0]->rating;
+                    } else {
+                        if (self::getFavs()) {
+                            unset($response[$key]);
+                        } else {
+                            $response[$key]->rating = false;
+                        }
+                    }
+                }
+                $response = array_values($response);
+                return array_unique($response, SORT_REGULAR);
+            }
+            return $response = [];
+        } catch (Exception $e) {
+            throw new Exception('Invalid data passing to this function: searchModifiedIncluyeme' . $e);
+        }
+    }
+    
+    private function getExtraRating($userId)
+    {
+        global $wpdb;
+        $prefix = $wpdb->prefix;
+        $query = 'SELECT
   ' . $prefix . 'wpjb_meta_value.value as rating,
 ' . $prefix . 'users.ID as users_id
 FROM  ' . $prefix . 'wpjb_resume
@@ -153,8 +175,8 @@ FROM  ' . $prefix . 'wpjb_resume
 WHERE ' . $prefix . 'wpjb_meta.name = "rating"
   AND ' . $prefix . 'wpjb_company.user_id = ' . self::getUserId() . '
   AND ' . $prefix . 'users.ID = ' . $userId . ' ';
-		
-		$group = 'GROUP BY ' . $prefix . 'users.user_email,
+        
+        $group = 'GROUP BY ' . $prefix . 'users.user_email,
          ' . $prefix . 'users.display_name,
          ' . $prefix . 'wpjb_resume.phone,
          ' . $prefix . 'wpjb_resume.description,
@@ -168,16 +190,17 @@ WHERE ' . $prefix . 'wpjb_meta.name = "rating"
          ' . $prefix . 'wpjb_resume.candidate_state,
          ' . $prefix . 'wpjb_resume.candidate_location,
           ' . $prefix . 'users.ID  LIMIT 1';
-		$query .= $group;
-		
-		$result = $this->executeQueries($query);
-		try {
-			if (count($result) === 0) {
-				return false;
-			}
-			return $result;
-		} catch (Exception $e) {
-			throw new Exception('Invalid data passing to this function: getExtraData' . $e);
-		}
-	}
+        $query .= $group;
+        
+        $result = $this->executeQueries($query);
+        try {
+            if (count($result) === 0) {
+                return false;
+            }
+            return $result;
+        } catch (Exception $e) {
+            throw new Exception('Invalid data passing to this function: getExtraData' . $e);
+        }
+    }
+    
 }

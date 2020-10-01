@@ -22,7 +22,6 @@ function incluyeme_files()
 		$templateSize = filesize(plugin_dir_path(__FILE__) . '/templates/incluyeme-board/job-applications.php');
 		$templateExist = filesize($route . '/wpjobboard/job-board/job-applications.php');
 		if ($templateExist !== $templateSize) {
-			rmdir($route . '/wpjobboard/job-board/job-applications.php');
 			copy($template, $route . '/wpjobboard/job-board/job-applications.php');
 		}
 	}
