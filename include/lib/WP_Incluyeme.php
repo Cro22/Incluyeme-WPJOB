@@ -49,8 +49,10 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
         } else {
             $queries = $this->addQueries($query);
         }
-        $queries = $queries . " LIMIT " . ($this->resultsNumbers - 1) * 10 . ", 10";
-        
+        $resultNumber = $this->resultsNumbers;
+        $LIMITQuery = ($resultNumber - 1) * 10 ?: 0;
+      
+        $queries = $queries . " LIMIT {$LIMITQuery}, 10";
         $results = $this->executeQueries($queries);
         try {
             if (count($results) !== 0) {
