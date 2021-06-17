@@ -120,7 +120,7 @@ class WP_Filters_Incluyeme
         }
         
         
-        if (self::getCourse() !== null || (self::getSearchPhrase() !== null && $phrase)) {
+        if (self::getCourse() !== null) {
             $searchQueries = "SELECT
                               {$prefix}wpjb_resume_detail.resume_id
                             FROM {$prefix}wpjb_resume_detail
@@ -133,12 +133,10 @@ class WP_Filters_Incluyeme
                               INNER JOIN {$prefix}wpjb_company
                                 ON {$prefix}wpjb_job.employer_id = {$prefix}wpjb_company.id
                             WHERE {$prefix}wpjb_company.user_id = " . self::getUserId() . " AND {$prefix}wpjb_resume_detail.type = 2";
-            if (self::getSearchPhrase() !== null && $phrase && self::getCourse() !== null) {
+            if (self::getSearchPhrase() !== null && self::getCourse() !== null) {
                 $searchQueries .= " AND ( {$prefix}wpjb_resume_detail.detail_title LIKE '%" . self::getCourse() . "%'
                 AND ( {$prefix}wpjb_resume_detail.detail_title LIKE '%" . self::getCourse() . "%'
             OR {$prefix}wpjb_resume_detail.detail_title LIKE '%" . self::getSearchPhrase() . "%')";
-            } else if (self::getSearchPhrase() === null && $phrase && self::getCourse() !== null) {
-                $searchQueries .= " AND ( {$prefix}wpjb_resume_detail.detail_title LIKE '%" . self::getSearchPhrase() . "%') ";
             } else {
                 $searchQueries .= " AND ( {$prefix}wpjb_resume_detail.detail_title LIKE '%" . self::getCourse() . "%' ) ";
             }
@@ -147,7 +145,7 @@ class WP_Filters_Incluyeme
         }
         
         if (self::getEducation() !== null || (self::getSearchPhrase() !== null && $phrase)) {
-            $sql .= " AND {$prefix}wpjb_resume.id IN (SELECT
+            $sql .= " OR {$prefix}wpjb_resume.id IN (SELECT
                               {$prefix}wpjb_resume_detail.resume_id
                             FROM {$prefix}wpjb_resume_detail
                           INNER JOIN {$prefix}wpjb_resume
@@ -160,19 +158,45 @@ class WP_Filters_Incluyeme
                             ON {$prefix}wpjb_job.employer_id = {$prefix}wpjb_company.id
                             WHERE    {$prefix}wpjb_company.user_id = " . self::getUserId() . " AND {$prefix}wpjb_resume_detail.type = 2";
             
-            if (self::getSearchPhrase() !== null && $phrase && self::getEducation() !== null) {
+            if (self::getSearchPhrase() !== null && self::getEducation() !== null) {
                 $sql .= " AND ( {$prefix}wpjb_resume_detail.grantor LIKE '%" . self::getEducation() . "%'
             OR {$prefix}wpjb_resume_detail.grantor LIKE '%" . self::getSearchPhrase() . "%')";
-            } else if (self::getSearchPhrase() === null && $phrase && self::getEducation() !== null) {
-                $sql .= " AND ({$prefix}wpjb_resume_detail.grantor LIKE '%" . self::getSearchPhrase() . "%')";
+                
+                $sql .= " OR ( {$prefix}wpjb_resume_detail.detail_description LIKE '%" . self::getEducation() . "%'
+            OR {$prefix}wpjb_resume_detail.detail_description LIKE '%" . self::getSearchPhrase() . "%')";
+            } else if (self::getEducation() === null && $phrase && self::getSearchPhrase() !== null) {
+                $sql .= " AND ({$prefix}wpjb_resume_detail.grantor LIKE '%" . self::getSearchPhrase() . "%' 
+                OR {$prefix}wpjb_resume_detail.detail_description LIKE '%" . self::getSearchPhrase() . "%'
+                    OR {$prefix}wpjb_resume_detail.detail_title LIKE '%" . self::getSearchPhrase() . "%')";
             } else {
                 $sql .= " AND ( {$prefix}wpjb_resume_detail.grantor LIKE '%" . self::getCourse() . "%' ) ";
             }
             $sql .= " GROUP BY {$prefix}wpjb_resume_detail.resume_id)";
         }
         
-        if (self::getDescription() !== null || (self::getSearchPhrase() !== null && $phrase)) {
-            $sql .= " AND {$prefix}wpjb_resume.id IN (SELECT
+        if (self::getSearchPhrase() !== null && $phrase) {
+            $sql .= " OR {$prefix}wpjb_resume.id IN (SELECT
+                              {$prefix}wpjb_resume_detail.resume_id
+                            FROM {$prefix}wpjb_resume_detail
+                          INNER JOIN {$prefix}wpjb_resume
+                            ON {$prefix}wpjb_resume_detail.resume_id = {$prefix}wpjb_resume.id
+                          INNER JOIN {$prefix}wpjb_application
+                            ON {$prefix}wpjb_resume.user_id = {$prefix}wpjb_application.user_id
+                          INNER JOIN {$prefix}wpjb_job
+                            ON {$prefix}wpjb_application.job_id = {$prefix}wpjb_job.id
+                          INNER JOIN {$prefix}wpjb_company
+                            ON {$prefix}wpjb_job.employer_id = {$prefix}wpjb_company.id
+                            WHERE    {$prefix}wpjb_company.user_id = " . self::getUserId() . " AND {$prefix}wpjb_resume_detail.type = 1";
+            
+            $sql .= " AND ({$prefix}wpjb_resume_detail.grantor LIKE '%" . self::getSearchPhrase() . "%'
+            OR {$prefix}wpjb_resume_detail.detail_description LIKE '%" . self::getSearchPhrase() . "%'
+             OR {$prefix}wpjb_resume_detail.detail_title LIKE '%" . self::getSearchPhrase() . "%')";
+            
+            $sql .= " GROUP BY {$prefix}wpjb_resume_detail.resume_id)";
+        }
+        
+        if (self::getDescription() !== null) {
+            $sql .= " OR {$prefix}wpjb_resume.id IN (SELECT
                               {$prefix}wpjb_resume_detail.resume_id
                             FROM {$prefix}wpjb_resume_detail
                               INNER JOIN {$prefix}wpjb_resume
@@ -185,11 +209,10 @@ class WP_Filters_Incluyeme
                                 ON {$prefix}wpjb_job.employer_id = {$prefix}wpjb_company.id
                             WHERE  {$prefix}wpjb_company.user_id = " . self::getUserId() . " AND {$prefix}wpjb_resume_detail.type = 2";
             
-            if (self::getSearchPhrase() !== null && $phrase && self::getDescription() !== null) {
+            if (self::getSearchPhrase() !== null && self::getDescription() !== null) {
                 $sql .= " AND ( {$prefix}wpjb_resume_detail.detail_description LIKE '%" . self::getDescription() . "%'
-            OR {$prefix}wpjb_resume_detail.detail_description LIKE '%" . self::getSearchPhrase() . "%')";
-            } else if (self::getSearchPhrase() !== null && $phrase && self::getDescription() === null) {
-                $sql .= " AND ( {$prefix}wpjb_resume_detail.detail_description LIKE '%" . self::getSearchPhrase() . "%')";
+            OR {$prefix}wpjb_resume_detail.detail_description LIKE '%" . self::getSearchPhrase() . "%'
+               OR {$prefix}wpjb_resume_detail.detail_title LIKE '%" . self::getSearchPhrase() . "%')";
             } else {
                 $sql .= " AND ( {$prefix}wpjb_resume_detail.detail_description LIKE '%" . self::getCourse() . "%' ) ";
             }
