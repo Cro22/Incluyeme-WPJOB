@@ -18,7 +18,6 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
        {$prefix}users.user_email,
          {$prefix}users.display_name,
          {$prefix}wpjb_resume.phone,
-         {$prefix}wpjb_job.job_title,
          {$prefix}posts.guid,
          {$prefix}usermeta.meta_value AS first_name,
          {$prefix}usermeta.meta_key,
@@ -52,7 +51,18 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
         $resultNumber = $this->resultsNumbers;
         $LIMITQuery = ($resultNumber - 1) * 10 ?: 0;
       
-        $queries = $queries . " LIMIT {$LIMITQuery}, 10";
+        $queries = $queries . " GROUP by
+  wp_users.ID ,
+  wp_users.user_email,
+  wp_users.display_name,
+  wp_wpjb_resume.phone,
+  wp_posts.guid,
+  wp_usermeta.meta_value,
+  wp_usermeta.meta_key,
+  wp_wpjb_resume.candidate_state,
+  wp_wpjb_resume.candidate_location,
+  wp_wpjb_resume.id,
+  lVal.meta_value LIMIT {$LIMITQuery}, 10";
         $results = $this->executeQueries($queries);
         try {
             if (count($results) !== 0) {
