@@ -52,7 +52,7 @@ class WP_Incluyeme extends WP_Filters_Incluyeme
         $resultNumber = $this->resultsNumbers;
         $LIMITQuery = ($resultNumber - 1) * 10 ?: 0;
       
-        $queries = $queries . " LIMIT {$LIMITQuery}, 10";
+        $queries = $queries . " LIMIT {$LIMITQuery}, 10 Group By resume_id";
         $results = $this->executeQueries($queries);
         try {
             if (count($results) !== 0) {
