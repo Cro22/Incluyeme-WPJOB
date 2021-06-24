@@ -68,11 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['id']) && !empty($_POST
     }
     if (!empty($_POST['jobs'])) {
         $data::setJob($_POST['jobs']);
-    } else {
-        if (!empty($_POST['keyPhrase'])) {
-            $data::setJob($_POST['keyPhrase']);
-        }
-    }
+    } 
     if (!empty($_POST['course'])) {
         $data::setCourse($_POST['course']);
     } else {
