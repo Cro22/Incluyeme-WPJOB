@@ -51,10 +51,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['id']) && !empty($_POST
     }
     if (!empty($_POST['city'])) {
         $data::setCity($_POST['city']);
-    } else {
-        if (!empty($_POST['keyPhrase'])) {
-            $data::setCity($_POST['keyPhrase']);
-        }
     }
     if (!empty($_POST['idioms'])) {
         $data::setIdioms($_POST['idioms']);
@@ -78,18 +74,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['id']) && !empty($_POST
     }
     if (!empty($_POST['name'])) {
         $data::setName($_POST['name']);
-    } else {
-        if (!empty($_POST['keyPhrase'])) {
-            $data::setName($_POST['keyPhrase']);
-        }
     }
     if (!empty($_POST['lastName'])) {
         $data::setLastName($_POST['lastName']);
-    } else {
-        if (!empty($_POST['keyPhrase'])) {
-            $data::setLastName($_POST['keyPhrase']);
-        }
-    }
+    } 
     if (!empty($_POST['education'])) {
         $data::setEducation($_POST['education']);
     } else {
@@ -109,10 +97,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['id']) && !empty($_POST
     }
     if (!empty($_POST['residence'])) {
         $data::setResidence($_POST['residence']);
-    } else {
-        if (!empty($_POST['keyPhrase'])) {
-            $data::setResidence($_POST['keyPhrase']);
-        }
     }
     if (!empty($_POST['keyPhrase'])) {
         $data::setSearchPhrase($_POST['keyPhrase']);

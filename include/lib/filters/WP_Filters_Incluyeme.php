@@ -7,6 +7,7 @@ require_once $_SERVER["DOCUMENT_ROOT"] . '/wp-load.php';
 
 class WP_Filters_Incluyeme
 {
+    protected static $checkLoginV;
     private static $user_id;
     private static $job;
     private static $disability;
@@ -27,7 +28,6 @@ class WP_Filters_Incluyeme
     private static $incluyemeFilters;
     private static $favs;
     private static $newIdioms;
-    protected static $checkLoginV;
     private static $estudiosCheckF;
     private static $estudiosCheck;
     
@@ -82,7 +82,10 @@ class WP_Filters_Incluyeme
         if (self::getJob() !== null) {
             $sql .= " AND {$prefix}wpjb_job.id = " . self::getJob() . " ";
         }
-        
+        $where = " AND ";
+        if (self::getSearchPhrase() !== null && $phrase) {
+            $where = " OR ";
+        }
         if (self::getFavs() !== null) {
             $sql .= " AND {$prefix}wpjb_application.id in (SELECT
                     {$prefix}wpjb_meta_value.object_id AS expr1
@@ -116,12 +119,12 @@ class WP_Filters_Incluyeme
             $sql .= ' OR ' . $prefix . 'users.user_email Like "%' . self::getSearchPhrase() . '%" ) ';
         }
         if (self::getLastName() !== null) {
-            $sql .= ' AND lVal.meta_value Like "%' . self::getLastName() . '%" ';
+            $sql .= $where . '  lVal.meta_value Like "%' . self::getLastName() . '%" ';
         }
         
         
         if (self::getCourse() !== null) {
-            $sql .= " AND {$prefix}wpjb_resume.id IN (SELECT
+            $sql .= " {$where} {$prefix}wpjb_resume.id IN (SELECT
                               {$prefix}wpjb_resume_detail.resume_id
                             FROM {$prefix}wpjb_resume_detail
                               INNER JOIN {$prefix}wpjb_resume
@@ -143,7 +146,7 @@ class WP_Filters_Incluyeme
         }
         
         if (self::getEducation() !== null) {
-            $sql .= " AND {$prefix}wpjb_resume.id IN (SELECT
+            $sql .= " {$where} {$prefix}wpjb_resume.id IN (SELECT
                               {$prefix}wpjb_resume_detail.resume_id
                             FROM {$prefix}wpjb_resume_detail
                           INNER JOIN {$prefix}wpjb_resume
@@ -166,7 +169,7 @@ class WP_Filters_Incluyeme
         }
         
         if (self::getDescription() !== null) {
-            $sql .= " AND {$prefix}wpjb_resume.id IN (SELECT
+            $sql .= " {$where} {$prefix}wpjb_resume.id IN (SELECT
                               {$prefix}wpjb_resume_detail.resume_id
                             FROM {$prefix}wpjb_resume_detail
                               INNER JOIN {$prefix}wpjb_resume
@@ -275,8 +278,7 @@ class WP_Filters_Incluyeme
                               WHERE  lValue.value in ( %disability% ) AND {$prefix}wpjb_company.user_id = " . self::getUserId() . "
                             GROUP BY {$prefix}wpjb_resume.id)";
             $sql = self::changePrefix($sql, '%disability%', '"' . implode('","', self::getDisability()) . '"');
-        }
-        elseif (self::getDisability() !== null && self::$checkLoginV) {
+        } else if (self::getDisability() !== null && self::$checkLoginV) {
             $sql .= " AND {$prefix}wpjb_resume.id IN (SELECT
                       {$prefix}wpjb_resume.id
                     FROM {$prefix}wpjb_resume
@@ -316,6 +318,22 @@ class WP_Filters_Incluyeme
     public static function setJob($job)
     {
         self::$job = $job;
+    }
+    
+    /**
+     * @return mixed
+     */
+    public static function getSearchPhrase()
+    {
+        return self::$searchPhrase;
+    }
+    
+    /**
+     * @param mixed $searchPhrase
+     */
+    public static function setSearchPhrase($searchPhrase)
+    {
+        self::$searchPhrase = $searchPhrase;
     }
     
     /**
@@ -421,22 +439,6 @@ class WP_Filters_Incluyeme
     public static function setEmail($email)
     {
         self::$email = $email;
-    }
-    
-    /**
-     * @return mixed
-     */
-    public static function getSearchPhrase()
-    {
-        return self::$searchPhrase;
-    }
-    
-    /**
-     * @param mixed $searchPhrase
-     */
-    public static function setSearchPhrase($searchPhrase)
-    {
-        self::$searchPhrase = $searchPhrase;
     }
     
     /**
