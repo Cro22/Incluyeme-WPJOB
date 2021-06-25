@@ -122,7 +122,23 @@ class WP_Filters_Incluyeme
             $sql .= $where . '  lVal.meta_value Like "%' . self::getLastName() . '%" ';
         }
         
-        
+        if(self::getSearchPhrase() !== null && $phrase){
+        $sql .= " OR {$prefix}wpjb_resume.id IN (SELECT
+                      {$prefix}wpjb_resume_detail.resume_id
+                    FROM {$prefix}wpjb_resume_detail
+                      INNER JOIN {$prefix}wpjb_resume
+                            ON {$prefix}wpjb_resume_detail.resume_id = {$prefix}wpjb_resume.id
+                          INNER JOIN {$prefix}wpjb_application
+                            ON {$prefix}wpjb_resume.user_id = {$prefix}wpjb_application.user_id
+                          INNER JOIN {$prefix}wpjb_job
+                            ON {$prefix}wpjb_application.job_id = {$prefix}wpjb_job.id
+                          INNER JOIN {$prefix}wpjb_company
+                            ON {$prefix}wpjb_job.employer_id = {$prefix}wpjb_company.id
+                            WHERE    {$prefix}wpjb_company.user_id = " . self::getUserId() . "
+                      AND ({$prefix}wpjb_resume_detail.detail_title LIKE '%".self::getSearchPhrase()."%'
+                      OR   {$prefix}wpjb_resume_detail.grantor LIKE  '%".self::getSearchPhrase() ."%' OR 
+                        {$prefix}wpjb_resume_detail.detail_description  LIKE  '%".self::getSearchPhrase() ."%') ) ";
+        }
         if (self::getCourse() !== null) {
             $sql .= " {$where} {$prefix}wpjb_resume.id IN (SELECT
                               {$prefix}wpjb_resume_detail.resume_id
