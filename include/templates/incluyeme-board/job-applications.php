@@ -591,7 +591,7 @@ $baseurl = $baseurl['baseurl'];
 												<option disabled
 												        selected><?php _e("Elegir Idioma.", "wpjobboard"); ?></option>
 												<option value="idioma_ingles">Inglés</option>
-												<option value="idioma_portugues">Portugues</option>
+												<option value="idioma_protugues">Portugues</option>
 												<option value="idioma_frances">Frances</option>
 												<option value="idioma_aleman">Alemán</option>
 											</select>

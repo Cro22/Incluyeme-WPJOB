@@ -156,7 +156,7 @@ let filterApplicants = new Vue({
                 if (this.idioms === 'idioma_ingles') {
                     data.idiomsN = 1;
                 }
-                if (this.idioms === 'idioma_portugues') {
+                if (this.idioms === 'idioma_protugues') {
                     data.idiomsN = 3;
                 }
                 if (this.idioms === 'idioma_frances') {
