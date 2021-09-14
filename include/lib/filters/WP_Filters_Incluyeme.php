@@ -220,7 +220,7 @@ class WP_Filters_Incluyeme
                             WHERE  {$prefix}wpjb_company.user_id = " . self::getUserId() . " AND {$prefix}wpjb_resume_detail.type = 2";
             
             
-            $sql .= " AND ( {$prefix}wpjb_resume_detail.detail_description LIKE '%" . self::getCourse() . "%' ) ";
+            $sql .= " AND ( {$prefix}wpjb_resume_detail.detail_description LIKE '%" . self::getDescription() . "%' ) ";
             
             $sql .= " GROUP BY {$prefix}wpjb_resume_detail.resume_id)";
         }
@@ -297,13 +297,6 @@ class WP_Filters_Incluyeme
                     GROUP BY {$prefix}wpjb_resume.id)";
             $sql = self::changePrefix($sql, '%disability%', '"' . implode('","', self::getDisability()) . '"');
         }
-        if (self::getCourse() !== null && self::getSearchPhrase() === null && !$phrase) {
-            
-            $sql .= " AND ( {$prefix}wpjb_resume_detail.detail_title LIKE '%" . self::getCourse() . "%'
-            OR {$prefix}wpjb_resume_detail.detail_title LIKE '%" . self::getSearchPhrase() . "%')";
-            
-            $sql .= " GROUP BY {$prefix}wpjb_resume_detail.resume_id)";
-        }
         if (self::getSearchPhrase() !== null && $phrase) {
             $sql .= " AND (  {$prefix}wpjb_resume.id IN (SELECT
                       {$prefix}wpjb_resume_detail.resume_id
@@ -332,7 +325,27 @@ class WP_Filters_Incluyeme
             $sql .= ' OR ' . $prefix . 'usermeta.meta_value  Like "%' . self::getSearchPhrase() . '%" ';
             $sql .= ' OR ' . $prefix . 'users.user_email Like "%' . self::getSearchPhrase() . '%" ) ';
              $sql .= " ) ";
+             
+              if (self::getCourse() !== null) {
+            $sql .= " AND {$prefix}wpjb_resume.id IN (SELECT
+                              {$prefix}wpjb_resume_detail.resume_id
+                            FROM {$prefix}wpjb_resume_detail
+                              INNER JOIN {$prefix}wpjb_resume
+                                ON {$prefix}wpjb_resume_detail.resume_id = {$prefix}wpjb_resume.id
+                              INNER JOIN {$prefix}wpjb_application
+                                ON {$prefix}wpjb_resume.user_id = {$prefix}wpjb_application.user_id
+                              INNER JOIN {$prefix}wpjb_job
+                                ON {$prefix}wpjb_application.job_id = {$prefix}wpjb_job.id
+                              INNER JOIN {$prefix}wpjb_company
+                                ON {$prefix}wpjb_job.employer_id = {$prefix}wpjb_company.id
+                            WHERE {$prefix}wpjb_company.user_id = " . self::getUserId() . " AND {$prefix}wpjb_resume_detail.type = 2";
+            
+            $sql .= " AND ( {$prefix}wpjb_resume_detail.detail_title LIKE '%" . self::getCourse() . "%' ) ";
+            
+            $sql .= " GROUP BY {$prefix}wpjb_resume_detail.resume_id)";
         }
+        }
+        error_log(print_r($sql, true));
         return $sql;
     }
     
