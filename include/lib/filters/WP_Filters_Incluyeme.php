@@ -7,6 +7,7 @@ require_once $_SERVER["DOCUMENT_ROOT"] . '/wp-load.php';
 
 class WP_Filters_Incluyeme
 {
+    protected static $checkLoginV;
     private static $user_id;
     private static $job;
     private static $disability;
@@ -27,7 +28,6 @@ class WP_Filters_Incluyeme
     private static $incluyemeFilters;
     private static $favs;
     private static $newIdioms;
-    protected static $checkLoginV;
     private static $estudiosCheckF;
     private static $estudiosCheck;
     
@@ -56,7 +56,14 @@ class WP_Filters_Incluyeme
         self::$incluyemeFilters = 'incluyemeFiltersCV';
         self::$estudiosCheckF = null;
         self::$estudiosCheck = null;
-        
+        self::checkLogin();
+    }
+    
+    protected static function checkLogin()
+    {
+        include_once(ABSPATH . 'wp-admin/includes/plugin.php');
+        self::$checkLoginV = function_exists('incluyeme_requirements_Login_Extension');
+        return self::$checkLoginV;
     }
     
     /**
@@ -82,7 +89,60 @@ class WP_Filters_Incluyeme
         if (self::getJob() !== null) {
             $sql .= " AND {$prefix}wpjb_job.id = " . self::getJob() . " ";
         }
-        
+        $where = " AND ";
+        if (self::getIdioms() !== null) {
+            
+            if (!self::$checkLoginV) {
+                $sql .= " AND {$prefix}wpjb_resume.id IN (SELECT
+                          {$prefix}wpjb_resume.id
+                        FROM {$prefix}wpjb_resume
+                          INNER JOIN {$prefix}wpjb_application
+                            ON {$prefix}wpjb_resume.user_id = {$prefix}wpjb_application.user_id
+                          INNER JOIN {$prefix}wpjb_job
+                            ON {$prefix}wpjb_application.job_id = {$prefix}wpjb_job.id
+                          INNER JOIN {$prefix}wpjb_company
+                            ON {$prefix}wpjb_job.employer_id = {$prefix}wpjb_company.id
+                          INNER JOIN {$prefix}wpjb_meta_value idiomsV
+                            ON {$prefix}wpjb_resume.id = idiomsV.object_id
+                          INNER JOIN {$prefix}wpjb_meta idioms
+                            ON idiomsV.meta_id = idioms.id";
+            }
+            if (self::$checkLoginV) {
+                $sql .= " AND {$prefix}wpjb_resume.id IN ( SELECT resume_id FROM  {$prefix}incluyeme_users_idioms  WHERE ";
+            } else {
+                $sql .= " WHERE ";
+            }
+            if (self::getOral() === null && self::getEscrito() === null) {
+                $sql .= " {$prefix}wpjb_company.user_id = " . self::getUserId() . "
+                              AND (idiomsV.value != 'No hablo'
+                              AND idioms.name = '" . self::getIdioms() . "')";
+                
+            } else {
+                
+                if (self::$checkLoginV) {
+                    if (self::getnewIdioms() !== null) {
+                        $sql .= '  (' . $prefix . 'incluyeme_users_idioms.idioms_id = "' . self::getnewIdioms() . '" ';
+                        if (self::getOral() !== null) {
+                            $sql .= ' AND ' . $prefix . 'incluyeme_users_idioms.olevel = "' . self::getOral() . '" ';
+                        }
+                        if (self::getEscrito() !== null) {
+                            $sql .= ' AND ' . $prefix . 'incluyeme_users_idioms.wlevel =  "' . self::getEscrito() . '" ';
+                        }
+                        $sql .= ' ) ';
+                    } else {
+                        
+                        if (self::getOral() !== null) {
+                            $sql .= ' AND ' . $prefix . 'incluyeme_users_idioms.olevel = "' . self::getOral() . '" ';
+                        }
+                        if (self::getEscrito() !== null) {
+                            $sql .= ' AND ' . $prefix . 'incluyeme_users_idioms.wlevel =  "' . self::getEscrito() . '" ';
+                        }
+                    }
+                    
+                }
+            }
+            $sql .= " GROUP BY resume_id )";
+        }
         if (self::getFavs() !== null) {
             $sql .= " AND {$prefix}wpjb_application.id in (SELECT
                     {$prefix}wpjb_meta_value.object_id AS expr1
@@ -107,21 +167,11 @@ class WP_Filters_Incluyeme
         if (self::getEmail() !== null) {
             $sql .= ' AND ' . $prefix . 'users.user_email = "' . self::getEmail() . '" ';
         }
-        if (self::getSearchPhrase() !== null && $phrase) {
-            $sql .= ' AND ( ' . $prefix . 'usermeta.meta_value Like  "%' . self::getSearchPhrase() . '%" ';
-            $sql .= ' OR ' . $prefix . 'wpjb_application.status Like "%' . self::getSearchPhrase() . '%" ';
-            $sql .= ' OR ' . $prefix . 'wpjb_resume.candidate_state Like "%' . self::getSearchPhrase() . '%" ';
-            $sql .= ' OR ' . $prefix . 'wpjb_resume.candidate_location Like "%' . self::getSearchPhrase() . '%" ';
-            $sql .= ' OR ' . $prefix . 'usermeta.meta_value  Like "%' . self::getSearchPhrase() . '%" ';
-            $sql .= ' OR ' . $prefix . 'users.user_email Like "%' . self::getSearchPhrase() . '%" ) ';
-        }
         if (self::getLastName() !== null) {
-            $sql .= ' AND lVal.meta_value Like "%' . self::getLastName() . '%" ';
+            $sql .= $where . '  lVal.meta_value Like "%' . self::getLastName() . '%" ';
         }
-        
-        
-        if (self::getCourse() !== null) {
-            $sql .= " AND {$prefix}wpjb_resume.id IN (SELECT
+        if (self::getCourse() !== null && self::getSearchPhrase() === null && !$phrase) {
+            $sql .= " {$where} {$prefix}wpjb_resume.id IN (SELECT
                               {$prefix}wpjb_resume_detail.resume_id
                             FROM {$prefix}wpjb_resume_detail
                               INNER JOIN {$prefix}wpjb_resume
@@ -133,17 +183,13 @@ class WP_Filters_Incluyeme
                               INNER JOIN {$prefix}wpjb_company
                                 ON {$prefix}wpjb_job.employer_id = {$prefix}wpjb_company.id
                             WHERE {$prefix}wpjb_company.user_id = " . self::getUserId() . " AND {$prefix}wpjb_resume_detail.type = 2";
-            if (self::getSearchPhrase() !== null && $phrase) {
-                $sql .= " AND ( {$prefix}wpjb_resume_detail.detail_title LIKE '%" . self::getCourse() . "%'
-            OR {$prefix}wpjb_resume_detail.detail_title LIKE '%" . self::getSearchPhrase() . "%')";
-            } else {
-                $sql .= " AND ( {$prefix}wpjb_resume_detail.detail_title LIKE '%" . self::getCourse() . "%' ) ";
-            }
+            
+            $sql .= " AND ( {$prefix}wpjb_resume_detail.detail_title LIKE '%" . self::getCourse() . "%' ) ";
+            
             $sql .= " GROUP BY {$prefix}wpjb_resume_detail.resume_id)";
         }
-        
-        if (self::getEducation() !== null) {
-            $sql .= " AND {$prefix}wpjb_resume.id IN (SELECT
+        if (self::getEducation() !== null && self::getSearchPhrase() === null && !$phrase) {
+            $sql .= " {$where} {$prefix}wpjb_resume.id IN (SELECT
                               {$prefix}wpjb_resume_detail.resume_id
                             FROM {$prefix}wpjb_resume_detail
                           INNER JOIN {$prefix}wpjb_resume
@@ -155,18 +201,12 @@ class WP_Filters_Incluyeme
                           INNER JOIN {$prefix}wpjb_company
                             ON {$prefix}wpjb_job.employer_id = {$prefix}wpjb_company.id
                             WHERE    {$prefix}wpjb_company.user_id = " . self::getUserId() . " AND {$prefix}wpjb_resume_detail.type = 2";
+            $sql .= " AND ( {$prefix}wpjb_resume_detail.grantor LIKE '%" . self::getCourse() . "%' ) ";
             
-            if (self::getSearchPhrase() !== null && $phrase) {
-                $sql .= " AND ( {$prefix}wpjb_resume_detail.grantor LIKE '%" . self::getEducation() . "%'
-            OR {$prefix}wpjb_resume_detail.grantor LIKE '%" . self::getSearchPhrase() . "%')";
-            } else {
-                $sql .= " AND ( {$prefix}wpjb_resume_detail.grantor LIKE '%" . self::getCourse() . "%' ) ";
-            }
             $sql .= " GROUP BY {$prefix}wpjb_resume_detail.resume_id)";
         }
-        
-        if (self::getDescription() !== null) {
-            $sql .= " AND {$prefix}wpjb_resume.id IN (SELECT
+        if (self::getDescription() !== null && self::getSearchPhrase() === null && !$phrase) {
+            $sql .= " {$where} {$prefix}wpjb_resume.id IN (SELECT
                               {$prefix}wpjb_resume_detail.resume_id
                             FROM {$prefix}wpjb_resume_detail
                               INNER JOIN {$prefix}wpjb_resume
@@ -179,12 +219,9 @@ class WP_Filters_Incluyeme
                                 ON {$prefix}wpjb_job.employer_id = {$prefix}wpjb_company.id
                             WHERE  {$prefix}wpjb_company.user_id = " . self::getUserId() . " AND {$prefix}wpjb_resume_detail.type = 2";
             
-            if (self::getSearchPhrase() !== null && $phrase) {
-                $sql .= " AND ( {$prefix}wpjb_resume_detail.detail_description LIKE '%" . self::getDescription() . "%'
-            OR {$prefix}wpjb_resume_detail.detail_description LIKE '%" . self::getSearchPhrase() . "%')";
-            } else {
-                $sql .= " AND ( {$prefix}wpjb_resume_detail.detail_description LIKE '%" . self::getCourse() . "%' ) ";
-            }
+            
+            $sql .= " AND ( {$prefix}wpjb_resume_detail.detail_description LIKE '%" . self::getDescription() . "%' ) ";
+            
             $sql .= " GROUP BY {$prefix}wpjb_resume_detail.resume_id)";
         }
         if (self::getEstudiosCheckF() === 1 && self::getEstudiosCheck() !== 1) {
@@ -199,11 +236,12 @@ class WP_Filters_Incluyeme
                                 ON {$prefix}wpjb_application.job_id = {$prefix}wpjb_job.id
                               INNER JOIN {$prefix}wpjb_company
                                 ON {$prefix}wpjb_job.employer_id = {$prefix}wpjb_company.id
-                            WHERE {$prefix}wpjb_company.user_id = " . self::getUserId() . " AND {$prefix}wpjb_resume_detail.is_current = 0
+                            WHERE {$prefix}wpjb_company.user_id = " . self::getUserId() . " AND {$prefix}wpjb_resume_detail.is_current = 1
+                            AND type = 2
                             GROUP BY {$prefix}wpjb_resume_detail.resume_id)";
         }
         if (self::getEstudiosCheck() === 1 && self::getEstudiosCheckF() !== 1) {
-            $sql .= " AND {$prefix}wpjb_resume.id NOT  IN (SELECT
+            $sql .= " AND {$prefix}wpjb_resume.id IN (SELECT
                               {$prefix}wpjb_resume_detail.resume_id
                             FROM {$prefix}wpjb_resume_detail
                          INNER JOIN {$prefix}wpjb_resume
@@ -215,49 +253,9 @@ class WP_Filters_Incluyeme
                               INNER JOIN {$prefix}wpjb_company
                                 ON {$prefix}wpjb_job.employer_id = {$prefix}wpjb_company.id
                             WHERE {$prefix}wpjb_company.user_id = " . self::getUserId() . " AND {$prefix}wpjb_resume_detail.is_current = 0
+                            AND type = 2
                             GROUP BY {$prefix}wpjb_resume_detail.resume_id)";
         }
-        if (self::getIdioms() !== null) {
-            
-            if (self::getOral() === null && self::getEscrito() === null) {
-                $sql .= " AND {$prefix}wpjb_resume.id IN (SELECT
-                              {$prefix}wpjb_resume.id
-                            FROM {$prefix}wpjb_resume
-                              INNER JOIN {$prefix}wpjb_application
-                                ON {$prefix}wpjb_resume.user_id = {$prefix}wpjb_application.user_id
-                              INNER JOIN {$prefix}wpjb_job
-                                ON {$prefix}wpjb_application.job_id = {$prefix}wpjb_job.id
-                              INNER JOIN {$prefix}wpjb_company
-                                ON {$prefix}wpjb_job.employer_id = {$prefix}wpjb_company.id
-                              INNER JOIN {$prefix}wpjb_meta_value idiomsV
-                                ON {$prefix}wpjb_resume.id = idiomsV.object_id
-                              INNER JOIN {$prefix}wpjb_meta idioms
-                                ON idiomsV.meta_id = idioms.id";
-                if (self::$checkLoginV) {
-                    $sql .= "  LEFT OUTER JOIN {$prefix}incluyeme_users_idioms
-    ON {$prefix}wpjb_resume.id = {$prefix}incluyeme_users_idioms.resume_id WHERE";
-                } else {
-                    $sql .= " WHERE ";
-                }
-                $sql .= " {$prefix}wpjb_company.user_id = " . self::getUserId() . "
-                              AND (idiomsV.value != 'No hablo'
-                              AND idioms.name = " . self::getIdioms() . ")";
-                if (self::$checkLoginV) {
-                    if (self::getnewIdioms() !== null) {
-                        $sql .= ' OR  ' . $prefix . 'incluyeme_users_idioms.idioms_id = "' . self::getnewIdioms() . '" ';
-                    }
-                    if (self::getOral() !== null) {
-                        $sql .= ' OR ' . $prefix . 'incluyeme_users_idioms.olevel = "' . self::getOral() . '" ';
-                    }
-                    if (self::getEscrito() !== null) {
-                        $sql .= ' OR ' . $prefix . 'incluyeme_users_idioms.wlevel =  "' . self::getEscrito() . '" ';
-                    }
-                }
-                $sql .= " GROUP BY {$prefix}wpjb_resume.id )";
-            }
-            
-        }
-        
         if (self::getDisability() !== null && !self::$checkLoginV) {
             $sql .= " AND {$prefix}wpjb_resume.id IN (SELECT
                               {$prefix}wpjb_resume.id
@@ -275,8 +273,8 @@ class WP_Filters_Incluyeme
                               WHERE  lValue.value in ( %disability% ) AND {$prefix}wpjb_company.user_id = " . self::getUserId() . "
                             GROUP BY {$prefix}wpjb_resume.id)";
             $sql = self::changePrefix($sql, '%disability%', '"' . implode('","', self::getDisability()) . '"');
-        }
-        elseif (self::getDisability() !== null && self::$checkLoginV) {
+        } 
+        else if (self::getDisability() !== null && self::$checkLoginV) {
             $sql .= " AND {$prefix}wpjb_resume.id IN (SELECT
                       {$prefix}wpjb_resume.id
                     FROM {$prefix}wpjb_resume
@@ -299,6 +297,55 @@ class WP_Filters_Incluyeme
                     GROUP BY {$prefix}wpjb_resume.id)";
             $sql = self::changePrefix($sql, '%disability%', '"' . implode('","', self::getDisability()) . '"');
         }
+        if (self::getSearchPhrase() !== null && $phrase) {
+            $sql .= " AND (  {$prefix}wpjb_resume.id IN (SELECT
+                      {$prefix}wpjb_resume_detail.resume_id
+                    FROM {$prefix}wpjb_resume_detail
+                      INNER JOIN {$prefix}wpjb_resume
+                            ON {$prefix}wpjb_resume_detail.resume_id = {$prefix}wpjb_resume.id
+                          INNER JOIN {$prefix}wpjb_application
+                            ON {$prefix}wpjb_resume.user_id = {$prefix}wpjb_application.user_id
+                          INNER JOIN {$prefix}wpjb_job
+                            ON {$prefix}wpjb_application.job_id = {$prefix}wpjb_job.id
+                          INNER JOIN {$prefix}wpjb_company
+                            ON {$prefix}wpjb_job.employer_id = {$prefix}wpjb_company.id
+                            WHERE    {$prefix}wpjb_company.user_id = " . self::getUserId() . "
+                      AND ({$prefix}wpjb_resume_detail.detail_title LIKE '%" . self::getSearchPhrase() . "%'
+                      OR   {$prefix}wpjb_resume_detail.grantor LIKE  '%" . self::getSearchPhrase() . "%' OR 
+                        {$prefix}wpjb_resume_detail.detail_description  LIKE  '%" . self::getSearchPhrase() . "%') ) ";
+        }
+        if (self::getSearchPhrase() !== null && $phrase) {
+            $where = " OR ";
+        }
+        if (self::getSearchPhrase() !== null && $phrase) {
+            $sql .= ' OR ( ' . $prefix . 'usermeta.meta_value Like  "%' . self::getSearchPhrase() . '%" ';
+            $sql .= ' OR ' . $prefix . 'wpjb_application.status Like "%' . self::getSearchPhrase() . '%" ';
+            $sql .= ' OR ' . $prefix . 'wpjb_resume.candidate_state Like "%' . self::getSearchPhrase() . '%" ';
+            $sql .= ' OR ' . $prefix . 'wpjb_resume.candidate_location Like "%' . self::getSearchPhrase() . '%" ';
+            $sql .= ' OR ' . $prefix . 'usermeta.meta_value  Like "%' . self::getSearchPhrase() . '%" ';
+            $sql .= ' OR ' . $prefix . 'users.user_email Like "%' . self::getSearchPhrase() . '%" ) ';
+             $sql .= " ) ";
+             
+              if (self::getCourse() !== null) {
+            $sql .= " AND {$prefix}wpjb_resume.id IN (SELECT
+                              {$prefix}wpjb_resume_detail.resume_id
+                            FROM {$prefix}wpjb_resume_detail
+                              INNER JOIN {$prefix}wpjb_resume
+                                ON {$prefix}wpjb_resume_detail.resume_id = {$prefix}wpjb_resume.id
+                              INNER JOIN {$prefix}wpjb_application
+                                ON {$prefix}wpjb_resume.user_id = {$prefix}wpjb_application.user_id
+                              INNER JOIN {$prefix}wpjb_job
+                                ON {$prefix}wpjb_application.job_id = {$prefix}wpjb_job.id
+                              INNER JOIN {$prefix}wpjb_company
+                                ON {$prefix}wpjb_job.employer_id = {$prefix}wpjb_company.id
+                            WHERE {$prefix}wpjb_company.user_id = " . self::getUserId() . " AND {$prefix}wpjb_resume_detail.type = 2";
+            
+            $sql .= " AND ( {$prefix}wpjb_resume_detail.detail_title LIKE '%" . self::getCourse() . "%' ) ";
+            
+            $sql .= " GROUP BY {$prefix}wpjb_resume_detail.resume_id)";
+        }
+        }
+        error_log(print_r($sql, true));
         return $sql;
     }
     
@@ -316,6 +363,86 @@ class WP_Filters_Incluyeme
     public static function setJob($job)
     {
         self::$job = $job;
+    }
+    
+    /**
+     * @return mixed
+     */
+    public static function getIdioms()
+    {
+        return self::$idioms;
+    }
+    
+    /**
+     * @param mixed $idioms
+     */
+    public static function setIdioms($idioms)
+    {
+        self::$idioms = $idioms;
+    }
+    
+    /**
+     * @return mixed
+     */
+    public static function getOral()
+    {
+        return self::$oral;
+    }
+    
+    /**
+     * @param mixed $oral
+     */
+    public static function setOral($oral)
+    {
+        self::$oral = $oral;
+    }
+    
+    /**
+     * @return mixed
+     */
+    public static function getEscrito()
+    {
+        return self::$escrito;
+    }
+    
+    /**
+     * @param mixed $escrito
+     */
+    public static function setEscrito($escrito)
+    {
+        self::$escrito = $escrito;
+    }
+    
+    /**
+     * @return mixed
+     */
+    public static function getUserId()
+    {
+        return self::$user_id;
+    }
+    
+    /**
+     * @param mixed $user_id
+     */
+    public static function setUserId($user_id)
+    {
+        self::$user_id = $user_id;
+    }
+    
+    /**
+     * @return mixed
+     */
+    public static function getnewIdioms()
+    {
+        return self::$newIdioms;
+    }
+    
+    /**
+     * @param mixed $newIdioms
+     */
+    public static function setnewIdioms($newIdioms)
+    {
+        self::$newIdioms = $newIdioms;
     }
     
     /**
@@ -426,22 +553,6 @@ class WP_Filters_Incluyeme
     /**
      * @return mixed
      */
-    public static function getSearchPhrase()
-    {
-        return self::$searchPhrase;
-    }
-    
-    /**
-     * @param mixed $searchPhrase
-     */
-    public static function setSearchPhrase($searchPhrase)
-    {
-        self::$searchPhrase = $searchPhrase;
-    }
-    
-    /**
-     * @return mixed
-     */
     public static function getLastName()
     {
         return self::$lastName;
@@ -474,17 +585,17 @@ class WP_Filters_Incluyeme
     /**
      * @return mixed
      */
-    public static function getUserId()
+    public static function getSearchPhrase()
     {
-        return self::$user_id;
+        return self::$searchPhrase;
     }
     
     /**
-     * @param mixed $user_id
+     * @param mixed $searchPhrase
      */
-    public static function setUserId($user_id)
+    public static function setSearchPhrase($searchPhrase)
     {
-        self::$user_id = $user_id;
+        self::$searchPhrase = $searchPhrase;
     }
     
     /**
@@ -551,70 +662,6 @@ class WP_Filters_Incluyeme
     {
         $estudiosCheck = $estudiosCheck !== null ? $estudiosCheck : 1;
         self::$estudiosCheck = intval($estudiosCheck);
-    }
-    
-    /**
-     * @return mixed
-     */
-    public static function getIdioms()
-    {
-        return self::$idioms;
-    }
-    
-    /**
-     * @param mixed $idioms
-     */
-    public static function setIdioms($idioms)
-    {
-        self::$idioms = $idioms;
-    }
-    
-    /**
-     * @return mixed
-     */
-    public static function getOral()
-    {
-        return self::$oral;
-    }
-    
-    /**
-     * @param mixed $oral
-     */
-    public static function setOral($oral)
-    {
-        self::$oral = $oral;
-    }
-    
-    /**
-     * @return mixed
-     */
-    public static function getEscrito()
-    {
-        return self::$escrito;
-    }
-    
-    /**
-     * @param mixed $escrito
-     */
-    public static function setEscrito($escrito)
-    {
-        self::$escrito = $escrito;
-    }
-    
-    /**
-     * @return mixed
-     */
-    public static function getnewIdioms()
-    {
-        return self::$newIdioms;
-    }
-    
-    /**
-     * @param mixed $newIdioms
-     */
-    public static function setnewIdioms($newIdioms)
-    {
-        self::$newIdioms = $newIdioms;
     }
     
     /**
@@ -752,13 +799,6 @@ WHERE {$prefix}wpjb_company.user_id =" . self::getUserId() . ")";
                 $wpdb->query($query);
             }
         }
-    }
-    
-    protected static function checkLogin()
-    {
-        include_once(ABSPATH . 'wp-admin/includes/plugin.php');
-        self::$checkLoginV = function_exists('incluyeme_requirements_Login_Extension');
-        return self::$checkLoginV;
     }
     
     public function deleteData($obj)

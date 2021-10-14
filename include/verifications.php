@@ -32,13 +32,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['id']) && !empty($_POST
     }
     if (count($_POST['course'])) {
         $data::setCourse($_POST['course']);
+    } else {
+        if (!empty($_POST['keyPhrase'])) {
+            $data::setCourse($_POST['keyPhrase']);
+        }
     }
     if (count($_POST['education'])) {
         $data::setEducation($_POST['education']);
+    } else {
+        if (!empty($_POST['keyPhrase'])) {
+            $data::setEducation($_POST['keyPhrase']);
+        }
     }
     if (!empty($_POST['resultsNumbers'])) {
         $data->resultsNumbers = $_POST['resultsNumbers'] === 0 ? 1 : $_POST['resultsNumbers'];
-    }else{
+    } else {
         $data->resultsNumbers = 1;
     }
     if (!empty($_POST['city'])) {
@@ -49,27 +57,43 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['id']) && !empty($_POST
     }
     if (!empty($_POST['description'])) {
         $data::setDescription($_POST['description']);
+    } else {
+        if (!empty($_POST['keyPhrase'])) {
+            $data::setDescription($_POST['keyPhrase']);
+        }
     }
     if (!empty($_POST['jobs'])) {
         $data::setJob($_POST['jobs']);
-    }
+    } 
     if (!empty($_POST['course'])) {
         $data::setCourse($_POST['course']);
+    } else {
+        if (!empty($_POST['keyPhrase'])) {
+            $data::setCourse($_POST['keyPhrase']);
+        }
     }
     if (!empty($_POST['name'])) {
         $data::setName($_POST['name']);
     }
     if (!empty($_POST['lastName'])) {
         $data::setLastName($_POST['lastName']);
-    }
+    } 
     if (!empty($_POST['education'])) {
         $data::setEducation($_POST['education']);
+    } else {
+        if (!empty($_POST['keyPhrase'])) {
+            $data::setEducation($_POST['keyPhrase']);
+        }
     }
     if (!empty($_POST['email'])) {
         $data::setEmail($_POST['email']);
     }
     if (!empty($_POST['description'])) {
         $data::setDescription($_POST['description']);
+    } else {
+        if (!empty($_POST['keyPhrase'])) {
+            $data::setDescription($_POST['keyPhrase']);
+        }
     }
     if (!empty($_POST['residence'])) {
         $data::setResidence($_POST['residence']);
